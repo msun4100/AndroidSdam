@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/a_launcher_3_login_join_bg"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="150dp" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/edit_change_pw_1"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="35dp"
+                android:layout_marginRight="35dp"
+                android:layout_weight="1"
+                android:background="@drawable/a_launcher_button"
+                android:ems="10"
+                android:hint="기존 비밀 번호"
+                android:inputType="textPassword"
+                android:lines="1"
+                android:nextFocusDown="@+id/edit_change_pw_2"
+                android:textColor="#80ffffff"
+                android:textColorHint="#80ffffff"
+                android:textSize="16sp" >
+
+                <requestFocus />
+            </EditText>
+
+            <TextView
+                android:id="@+id/text_change_pw_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="35dp"
+                android:layout_weight="1"
+                android:text="기존 비밀번호"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:visibility="invisible" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginTop="13dp" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/edit_change_pw_2"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/a_launcher_button"
+                android:ems="10"
+                android:hint="비밀번호 입력"
+                android:inputType="textPassword"
+                android:lines="1"
+                android:nextFocusDown="@+id/edit_change_pw_3"
+                android:singleLine="true"
+                android:textColor="#80ffffff"
+                android:textColorHint="#80ffffff"
+                android:textSize="16sp" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/text_change_pw_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="35dp"
+                android:layout_weight="1"
+                android:text="비밀번호 입력"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:visibility="invisible" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginTop="13dp" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/edit_change_pw_3"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/a_launcher_button"
+                android:ems="10"
+                android:hint="비밀번호 확인"
+                android:imeOptions="actionSend"
+                android:inputType="textPassword"
+                android:lines="1"
+                android:singleLine="true"
+                android:textColor="#80ffffff"
+                android:textColorHint="#80ffffff"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/text_change_pw_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="35dp"
+                android:layout_weight="1"
+                android:text="비밀번호 확인"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:visibility="invisible" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_change_pw"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginTop="13dp"
+        android:background="@drawable/a_launcher_button_blue"
+        android:text="확인"
+        android:textColor="#ffffffff" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="13dp"
+        android:visibility="visible" >
+
+        <TextView
+            android:id="@+id/text_change_find_pw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_weight="1"
+            android:text="비밀번호 찾기"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#ffffffff"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/text_change_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="50dp"
+            android:text="뒤로 가기"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#ffffffff"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</LinearLayout>

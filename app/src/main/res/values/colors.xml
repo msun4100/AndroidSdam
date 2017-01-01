@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="a_launcher_button">#ffffffff</color>
+    <color name="a_launcher_spinner">#ff26a7c7</color>
+    <color name="sdam_text_color">#ff26a7c7</color>
+    <color name="sign_up_font">#ffffffff</color>
+    <color name="reply_zero_color">#ff898989</color>
+    <color name="reply_color">#ff26a7c7</color>
+    <color name="popup_bg_color">#80000000</color>
+    <color name="calendar_sunday">#fff14249</color>
+    <color name="calendar_out_day">#ffacacac</color>
+    <color name="sunday">#fff14249</color>
+    <color name="calendar_day">#ff626262</color>
+    <color name="g_setting_content">#ff626262</color>
+    <color name="g_setting_layout_on">#ffd9d9d9</color>
+    <color name="g_setting_layout_off">#ffffffff</color>
+	<color name="g_setting_switch_track">#00000000</color>
+	<color name="b_main_seekbar_bg">#ffeeeeee</color>
+	<color name="g_setting_range_seekbar_track">#ff42baa1</color>
+	<color name="edit_text_default_color">#ff3e3e3e</color>
+	<color name="edit_text_tag_color">#ff26a7c7</color>
+	
+</resources>

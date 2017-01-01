@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:background="#ffffffff"
+    android:baselineAligned="true"
+    android:orientation="horizontal" >
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" >
+
+        <FrameLayout
+            android:id="@+id/frame_alarm_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" >
+
+            <ImageView
+                android:id="@+id/image_alarm_icon"
+                android:layout_width="15dp"
+                android:layout_height="17dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="10dp"
+                android:src="@drawable/e_notice_contents_icon_01_on" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/text_alarm_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="40dp"
+            android:hint="내 게시물을 좋아합니다.."
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#ff3e3e3e"
+            android:singleLine="true"
+            android:textSize="14sp" />
+
+    </FrameLayout>
+
+</LinearLayout>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/Linear_write"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:id="@+id/frame_write"
+        android:layout_width="match_parent"
+        android:layout_height="345dp"
+        android:background="@drawable/d_write_bg" >
+
+        <TextView
+            android:id="@+id/text_writing_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:hint="0/330"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:visibility="visible" />
+
+        <EditText
+            android:id="@+id/edit_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@null"
+            android:ems="11"
+            android:hint="텍스트를 입력해주세요."
+            android:inputType="textMultiLine"
+            android:maxLength="330"
+            android:maxLines="21"
+            android:textColor="#ffffffff"
+            android:textColorHint="#ffffffff"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|left"
+            android:layout_marginLeft="10dp" >
+
+            <ImageView
+                android:id="@+id/image_lock"
+                android:layout_width="29dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/d_write_option_secret_unlock" />
+
+            <ImageView
+                android:id="@+id/image_location"
+                android:layout_width="29dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/d_write_option_location_unlock" />
+
+            <EditText
+                android:id="@+id/editText3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:visibility="invisible" />
+
+            <ImageView
+                android:id="@+id/image_selected_emotion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="21dp"
+                android:src="@drawable/d_write_3_emoticon_01"
+                android:visibility="gone" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/containerforwrite"
+        android:layout_width="match_parent"
+        android:layout_height="222dp"
+        android:layout_weight="1" >
+
+    </FrameLayout>
+
+</LinearLayout>

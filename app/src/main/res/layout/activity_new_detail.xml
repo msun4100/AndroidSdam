@@ -1,0 +1,102 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="0dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="0dp"
+    tools:context="kr.me.sdam.detail.DetailActivity" >
+
+    <LinearLayout
+        android:id="@+id/Linear_detail_reply"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <ListView
+            android:id="@+id/list_detail_reply"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1" >
+        </ListView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ffffffff" >
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/b_main_view_2_detail_comments_text_box_off" >
+
+                    <EditText
+                        android:id="@+id/editText1"
+                        android:layout_width="40dp"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:visibility="invisible" />
+                    
+<!-- 
+                    <EditText
+                        android:id="@+id/edit_reply_input"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:background="@null"
+                        android:ems="13"
+                        android:hint="댓글을 입력하세요."
+                        android:lines="2"
+                        android:textColor="#ff3e3e3e"
+                        android:textSize="15sp" />
+                         -->
+<!-- 
+                    <AutoCompleteTextView
+                        android:id="@+id/autoCompleteTextView1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:completionThreshold="2"
+                        android:ems="10" >
+
+                        <requestFocus />
+                    </AutoCompleteTextView>
+                  -->
+                  <AutoCompleteTextView
+                        android:id="@+id/edit_reply_input"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:background="@null"
+                        android:completionThreshold="1"
+                        android:ems="13"
+                        android:hint="댓글을 입력하세요."
+                        android:lines="2"
+                        android:textColor="#ff3e3e3e"
+                        android:textSize="15sp" >
+                  </AutoCompleteTextView>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_add_reply"
+                    android:layout_width="59dp"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="11dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/b_main_view_2_detail_comments_next_button_blue_cancle"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="TypographyDashes">
+
+    <!-- <integer name="ga_sessionTimeout">300</integer> -->
+    <string name="ga_logLevel">verbose</string>
+    <!-- Enable automatic Activity measurement -->
+    <bool name="ga_autoActivityTracking">true</bool>
+
+    <!-- The screen names that will appear in reports -->
+    <screenName name="kr.me.sdam.MainActivity">        MainActivity
+	</screenName>
+	<screenName name="kr.me.sdam.MenuFragment">	    MenuFragment
+	</screenName>
+    <screenName name="kr.me.sdam.alarm.CustomDialogFragment">	    CustomDialogFragment
+	</screenName>
+    <screenName name="kr.me.sdam.detail.DetailActivity">        DetailActivity
+	</screenName>
+	<screenName name="kr.me.sdam.mypage.SettingMenuFragment">        SettingMenuFragment
+	</screenName>
+    <screenName name="kr.me.sdam.mypage.favor.FavorFragment">        FavorFragment
+	</screenName>
+	<screenName name="kr.me.sdam.mypage.mylist.MyListFragment">        MyListFragment
+	</screenName>
+    <screenName name="kr.me.sdam.search.SearchActivity">        SearchActivity
+	</screenName>
+	<screenName name="kr.me.sdam.tabone.TabOneFragment">        TabOneFragment
+	</screenName>
+    <screenName name="kr.me.sdam.tabtwo.TabTwoFragment">        TabTwoFragment
+	</screenName>
+    <screenName name="kr.me.sdam.tabthree.TabThreeFragment">	    TabThreeFragment
+	</screenName>
+	<screenName name="kr.me.sdam.write.WriteActivity">	    WriteActivity
+	</screenName>
+    
+    
+    
+    
+    
+    
+    <!-- The following value should be replaced with correct property id. -->
+    <string name="ga_trackingId">UA-82788098-1</string>
+
+</resources>

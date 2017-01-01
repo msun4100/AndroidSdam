@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialLayout="@layout/app_widget_layout"
+    android:minHeight="72dp"
+    android:minWidth="72dp"
+    android:previewImage="@drawable/a_launcher_1_icon_512x512"
+    android:updatePeriodMillis="1800000" >
+
+</appwidget-provider>
+<!--		min width		min height
+	4*1 	294dp			72dp
+	3*3		220dp			220dp
+	2*2		146dp			146dp
+ -->

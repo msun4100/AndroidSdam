@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <!-- d3dfb228d0630400fd07baf141f6a00a  -->
+    <string name="kakao_app_key">d3dfb228d0630400fd07baf141f6a00a</string>
+    <string name="kakao_scheme">kakaod3dfb228d0630400fd07baf141f6a00a</string>
+    <string name="kakaolink_host">kakaolink</string>
+    <string name="kakaolink_applink">쓰담으로 이동</string>
+    <string name="kakaolink_weblink">카카오톡 홈페이지로 이동</string>
+    <string name="kakaolink_appbutton">쓰담 바로가기</string>
+    <string name="kakaolink_webbutton">카카오 홈페이지로 이동</string>
+    
+</resources>

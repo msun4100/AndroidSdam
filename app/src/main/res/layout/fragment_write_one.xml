@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="222dp"
+    android:background="#ffffffff"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="69dp"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="186dp"
+            android:layout_height="69dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/d_write_2_title" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:id="@+id/layout_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <ImageView
+                    android:id="@+id/category_1"
+                    android:layout_width="40dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/d_write_2_emoticon_01_on" />
+
+                <ImageView
+                    android:id="@+id/category_2"
+                    android:layout_width="40dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/d_write_2_emoticon_02_on" />
+
+                <ImageView
+                    android:id="@+id/category_3"
+                    android:layout_width="40dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/d_write_2_emoticon_03_on" />
+
+                <ImageView
+                    android:id="@+id/category_4"
+                    android:layout_width="40dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/d_write_2_emoticon_04_on" />
+
+                <ImageView
+                    android:id="@+id/category_5"
+                    android:layout_width="40dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/d_write_2_emoticon_05_on" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/editText1"
+                android:layout_width="match_parent"
+                android:layout_height="11dp"
+                android:ems="10"
+                android:visibility="invisible" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <ImageView
+                    android:id="@+id/category_6"
+                    android:layout_width="40dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/d_write_2_emoticon_06_on" />
+
+                <ImageView
+                    android:id="@+id/category_7"
+                    android:layout_width="40dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/d_write_2_emoticon_07_on" />
+
+                <ImageView
+                    android:id="@+id/category_8"
+                    android:layout_width="40dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/d_write_2_emoticon_08_on" />
+
+                <ImageView
+                    android:id="@+id/category_9"
+                    android:layout_width="40dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/d_write_2_emoticon_09_on" />
+
+                <ImageView
+                    android:id="@+id/category_10"
+                    android:layout_width="40dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/d_write_2_emoticon_10_on" />
+            </LinearLayout>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="22dp"
+                android:ems="10"
+                android:visibility="invisible" >
+
+                <requestFocus />
+            </EditText>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

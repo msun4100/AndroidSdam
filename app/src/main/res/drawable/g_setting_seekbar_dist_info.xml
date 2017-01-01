@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@android:id/background"
+        android:drawable="@drawable/g_setting_03feed_bar_off"/>
+    <item android:id="@android:id/secondaryProgress">
+        <clip android:drawable="@drawable/g_setting_03feed_bar_off" />
+    </item>
+    <item android:id="@android:id/progress">
+
+<!--         <clip android:drawable="@drawable/a_launcher_2_2_screen_bg" /> -->
+        <clip android:drawable="@drawable/g_setting_03feed_bar_on" />
+    </item>
+
+</layer-list>

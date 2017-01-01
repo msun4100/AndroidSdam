@@ -1,0 +1,18 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="image_width">200dp</dimen>
+    <dimen name="image_height">100dp</dimen>
+    <dimen name="slidingmenu_offset">300dp</dimen>
+    <dimen name="shadow_width">60dp</dimen>
+    <dimen name="slidingmenu_setting_offset">60dp</dimen>
+    <dimen name="shadow_setting_width">5dp</dimen>
+    <dimen name="signup_gender_height">120dp</dimen>
+    <dimen name="signup_gender_width">135dp</dimen>
+    <dimen name="signup_birth_height">120dp</dimen>
+    <dimen name="signup_birth_width">135dp</dimen>
+    <dimen name="z_actionbar_height">48dp</dimen>
+
+</resources>

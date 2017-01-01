@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/FrameLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:layout_width="290dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:background="@drawable/e_notice_contents_bg"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="290dp"
+            android:layout_height="40dp"
+            android:background="@drawable/e_notice_title"
+            android:orientation="horizontal" >
+
+            <FrameLayout
+                android:id="@+id/frame_popup_delete"
+                android:layout_width="60dp"
+                android:layout_height="40dp" >
+
+                <ImageView
+                    android:id="@+id/image_popup_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/e_notice_title_icon_delete" />
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="지우기"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#ffffffff"
+                    android:textSize="9sp" />
+
+            </FrameLayout>
+
+            <EditText
+                android:id="@+id/editText1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="invisible"
+                android:ems="10" >
+
+                <requestFocus />
+            </EditText>
+
+            <FrameLayout
+                android:id="@+id/frame_popup_close"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:layout_gravity="right" >
+
+                <ImageView
+                    android:id="@+id/image_popup_close"
+                    android:layout_width="11dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/e_notice_title_icon_close" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/list_popup"
+            android:layout_width="280dp"
+            android:layout_height="370dp"
+            android:layout_marginLeft="5dp"
+            android:background="#ffffffff" >
+        </ListView>
+    </LinearLayout>
+
+</FrameLayout>

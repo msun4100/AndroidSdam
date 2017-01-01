@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/my_list_calendar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffffff"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="visible" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="2015"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="#ffacacac"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center" >
+
+                <FrameLayout
+                    android:id="@+id/frame_last_month"
+                    android:layout_width="15dp"
+                    android:layout_height="match_parent" >
+
+                    <ImageView
+                        android:id="@+id/lastMonth"
+                        android:layout_width="9dp"
+                        android:layout_height="15dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/f_my_calendar_arrow_left_selector" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/title_month"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:hint="02"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="#ff626262"
+                    android:textSize="50sp" />
+
+                <FrameLayout
+                    android:id="@+id/frame_next_month"
+                    android:layout_width="15dp"
+                    android:layout_height="match_parent" >
+
+                    <ImageView
+                        android:id="@+id/nextMonth"
+                        android:layout_width="9dp"
+                        android:layout_height="15dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/f_my_calendar_arrow_right_selector"
+                        android:text="next" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/LinearLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="319dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/f_my_calender_format_01" >
+            </LinearLayout>
+
+            <GridView
+                android:id="@+id/gridView1"
+                android:layout_width="320dp"
+                android:layout_height="335dp"
+                android:layout_weight="1"
+                android:background="@drawable/f_my_calender_format_02"
+                android:gravity="center_horizontal"
+                android:numColumns="7"
+                android:stretchMode="columnWidth" >
+            </GridView>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_widget_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="TextView" />
+
+</LinearLayout>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/a_launcher_3_login_join_bg"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="131dp" >
+
+        <EditText
+            android:id="@+id/sign_edit_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="35dp"
+            android:layout_weight="1"
+            android:background="@drawable/a_launcher_button"
+            android:ems="10"
+            android:fontFamily="nanum_bold"
+            android:hint="이메일"
+            android:inputType="textEmailAddress"
+            android:lines="1"
+            android:nextFocusDown="@+id/sign_edit_pw"
+            android:textColorHint="#80ffffff"
+            android:textColor="#ffffffff"
+            android:textSize="16sp" >
+
+            <requestFocus />
+        </EditText>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginTop="13dp" >
+
+        <EditText
+            android:id="@+id/sign_edit_pw"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/a_launcher_button"
+            android:ems="10"
+            android:fontFamily="nanum_bold"
+            android:hint="비밀번호"
+            android:imeOptions="actionDone"
+            android:inputType="textPassword"
+            android:lines="1"
+            android:singleLine="true"
+            android:textColorHint="#80ffffff"
+            android:textColor="#ffffffff"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="13dp" >
+
+        
+        <Spinner
+            android:id="@+id/spinner_gender"
+            android:layout_width="135dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="35dp"
+            android:layout_weight="1"
+            android:background="@drawable/a_launcher_button"
+            android:dropDownWidth="match_parent"
+            android:fontFamily="nanum_bold"
+            android:popupBackground="@drawable/a_launcher_box_dropdown_white"
+            android:visibility="gone"
+            android:spinnerMode="dropdown" />
+        <Spinner
+            android:id="@+id/spinner_birth"
+            android:layout_width="135dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="35dp"
+            android:layout_weight="1"
+            android:background="@drawable/a_launcher_button"
+            android:dropDownWidth="match_parent"
+            android:fontFamily="nanum_bold"
+            android:popupBackground="@drawable/a_launcher_box_dropdown_white"
+            android:spinnerMode="dropdown" 
+            android:visibility="gone"/>    
+<!--android:dropDownHorizontalOffset="100dp"        
+android:dropDownVerticalOffset="100dp" 버티컬 오프셋은 먹는데 
+android:padding="0dp" 패딩0주면 먹긴함..
+-->
+
+        <FrameLayout
+            android:layout_width="170dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" >
+
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center_vertical"
+                android:layout_marginRight="13dp"
+                android:src="@drawable/a_launcher_button_dropdown" />
+
+            <Button
+                android:id="@+id/btn_gender"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="35dp"
+                android:layout_weight="1"
+                android:background="@drawable/a_launcher_button"
+                android:fontFamily="nanum_bold"
+                android:text="성별"
+                android:textColor="#80ffffff"
+                android:textSize="15sp" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="190dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" >
+
+		<ImageView
+		    android:id="@+id/imageView2"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_gravity="right|center_vertical"
+		    android:layout_marginRight="48dp"
+		    android:src="@drawable/a_launcher_button_dropdown" />
+
+            <Button
+                android:id="@+id/btn_birth"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="35dp"
+                android:layout_weight="1"
+                android:background="@drawable/a_launcher_button"
+                android:fontFamily="nanum_bold"
+                android:text="생일년도"
+                android:textColor="#80ffffff"
+                android:textSize="15sp" />
+
+        </FrameLayout>
+
+        
+
+    </LinearLayout>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginLeft="10dp"
+    android:layout_marginTop="10dp"
+    android:visibility="visible" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center" >
+
+			<TextView
+			    android:id="@+id/text_signup_privacy_link"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_gravity="center_vertical"
+			    android:layout_marginLeft="49dp"
+			    android:layout_weight="1"
+			    android:fontFamily="nanum_bold"
+			    android:text="개인정보 수집 및 사용 동의"
+			    android:textAppearance="?android:attr/textAppearanceMedium"
+			    android:textColor="#ffffffff"
+			    android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/text_checkbox_privacy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="13dp"
+                android:layout_weight="1"
+                android:fontFamily="nanum_bold"
+                android:text="자세히"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#ffffffff"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/checkBox_privacy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="11dp"
+                android:layout_weight="1"
+                android:background="@drawable/check_selector"
+                android:button="@null" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="10dp"
+        android:visibility="visible" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center" >
+
+			<TextView
+			    android:id="@+id/text_signup_term_link"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_gravity="center_vertical"
+			    android:layout_marginLeft="48dp"
+			    android:fontFamily="nanum_bold"
+			    android:text="쓰담 이용 약관 동의            "
+			    android:textAppearance="?android:attr/textAppearanceMedium"
+			    android:textColor="#ffffffff"
+			    android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/text_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="13dp"
+                android:fontFamily="nanum_bold"
+                android:text="자세히"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#ffffffff"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/checkBox1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="11dp"
+                android:background="@drawable/check_selector"
+                android:button="@null" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_send"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginTop="13dp"
+        android:background="@drawable/a_launcher_button_blue"
+        android:fontFamily="nanum_bold"
+        android:text="회원 가입"
+        android:textColor="#ffffffff" />
+
+</LinearLayout>

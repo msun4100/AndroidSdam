@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "451565793086",
+    "project_id": "sdamproject"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:451565793086:android:ebd073ee1cc0df44",
+        "android_client_info": {
+          "package_name": "kr.me.sdam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDi8UKD9r9g3g2sM9COaBp2BNlxECizbVU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-82788098-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
