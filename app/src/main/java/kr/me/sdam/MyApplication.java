@@ -1,6 +1,10 @@
 package kr.me.sdam;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import android.app.Application;
 import android.content.Context;
@@ -17,6 +21,14 @@ public class MyApplication extends Application {
 	}
 	public static Context getContext() {
 		return mContext;
+	}
+
+	public static String getCurrentTimeStampString(){
+//		2017-01-03 19:20:01
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREAN);
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		String currentDateandTime = sdf.format(new Date());
+		return currentDateandTime;	//서버 시간으로 리턴
 	}
 	
 	/**

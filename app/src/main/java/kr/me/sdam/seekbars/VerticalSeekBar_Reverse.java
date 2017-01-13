@@ -1,7 +1,9 @@
 package kr.me.sdam.seekbars;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Canvas;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -38,16 +40,18 @@ public class VerticalSeekBar_Reverse extends SeekBar {
         super.onDraw(c);
     }
 
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        super.onTouchEvent(event);
         if (!isEnabled()) {
             return false;
         }
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_MOVE:
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_MOVE:
             	int i=0;
             	i=getMax() - (int) (getMax() * event.getY() / getHeight());
                 setProgress(200-i); //setMax(200)으로 하면

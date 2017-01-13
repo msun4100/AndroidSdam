@@ -3,7 +3,7 @@
 //import kr.me.sdam.NetworkManager.OnResultListener;
 //import kr.me.sdam.alarm.CustomDialogFragment;
 //import kr.me.sdam.common.CommonResultAdapter;
-//import kr.me.sdam.common.CommonResultItem;
+//import kr.me.sdam.common.CommonResult;
 //import kr.me.sdam.dialogs.ReportOneDialogFragment;
 //import kr.me.sdam.report.ABanInfo;
 //import kr.me.sdam.report.ReportInfo;

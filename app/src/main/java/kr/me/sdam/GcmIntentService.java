@@ -119,7 +119,7 @@ public class GcmIntentService extends IntentService {
     		NotificationCompat.Builder mBuilder =
         		new NotificationCompat.Builder(this)
     		.setSmallIcon(R.drawable.a_launcher_1_icon_notification)
-    		.setContentTitle("SDAM")
+    		.setContentTitle("쓰담")
     		.setStyle(new NotificationCompat.BigTextStyle()
     		.bigText(message))
     		.setContentText(message)

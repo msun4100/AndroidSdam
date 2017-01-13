@@ -2,10 +2,10 @@ package kr.me.sdam.tabthree;
 
 import java.io.Serializable;
 
-import kr.me.sdam.common.CommonResultItem;
+import kr.me.sdam.common.CommonResult;
 
 
-public class TabThreeResult extends CommonResultItem implements Serializable{
+public class TabThreeResult extends CommonResult implements Serializable{
 //	public int num;
 //	public int locate;
 //	public String content;

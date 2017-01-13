@@ -1,14 +1,8 @@
 package kr.me.sdam.report;
 
-import java.util.List;
-
-import kr.me.sdam.MyApplication;
 import kr.me.sdam.R;
-import kr.me.sdam.common.CommonResultItem;
-import kr.me.sdam.database.DBManager;
-import kr.me.sdam.detail.DetailActivity;
+
 import android.app.ActionBar.LayoutParams;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -17,12 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.ListView;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 
 public class CustomReportFragment extends DialogFragment{
 

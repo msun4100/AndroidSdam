@@ -2,9 +2,9 @@ package kr.me.sdam.mypage.favor;
 
 import java.io.Serializable;
 
-import kr.me.sdam.common.CommonResultItem;
+import kr.me.sdam.common.CommonResult;
 
 
-public class Favor2Result extends CommonResultItem implements Serializable{
+public class Favor2Result extends CommonResult implements Serializable{
 	
 }

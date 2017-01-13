@@ -5,7 +5,7 @@ import java.util.List;
 import kr.me.sdam.MyApplication;
 import kr.me.sdam.R;
 import kr.me.sdam.alarm.MyAlarmAdapter.OnAdapterItemClickListener;
-import kr.me.sdam.common.CommonResultItem;
+import kr.me.sdam.common.CommonResult;
 import kr.me.sdam.database.DBManager;
 import kr.me.sdam.detail.DetailActivity;
 import android.app.ActionBar.LayoutParams;
@@ -100,7 +100,7 @@ public class CustomDialogFragment extends DialogFragment {
 					DBManager.getInstance().updatePushData(item);
 					Intent intent = new Intent(getActivity(),
 							DetailActivity.class);
-					intent.putExtra(CommonResultItem.REQUEST_NUMBER, ""
+					intent.putExtra(CommonResult.REQUEST_NUMBER, ""
 							+ item.num);
 					// startActivityForResult(intent, 0);
 					startActivity(intent);

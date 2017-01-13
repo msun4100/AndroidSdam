@@ -66,7 +66,8 @@ public class SignUpActivity extends FragmentActivity{
 	boolean isPrivacyBoxChecked = false;
 	
 	public Button btn_gender, btn_birth;
-	
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -359,7 +360,7 @@ public class SignUpActivity extends FragmentActivity{
 
 								@Override
 								public void onFailure(Request request, int code, Throwable cause) {
-									Toast.makeText(SignUpActivity.this, "서버에 연결할 수 없스니다. #"+code, Toast.LENGTH_SHORT).show();
+									Toast.makeText(SignUpActivity.this, "서버에 연결할 수 없습니다. #"+code, Toast.LENGTH_SHORT).show();
 								}
 					});
 					

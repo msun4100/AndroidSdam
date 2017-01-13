@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid
+        android:color="@color/viewpager_circle_color"/>
+    <size android:width="@dimen/viewpager_indicator_size"
+        android:height="@dimen/viewpager_indicator_size"/>
+
+</shape>

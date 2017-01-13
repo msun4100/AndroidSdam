@@ -18,7 +18,7 @@
 
         <ImageView
             android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:src="@drawable/b_main_view_contents_bg" />
@@ -31,12 +31,14 @@
             android:baselineAligned="true"
             android:gravity="bottom" >
 
+
             <ImageView
                 android:id="@+id/image_report"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_marginLeft="9dp"
                 android:src="@drawable/b_main_view_contents_icon_01" />
+
             <ImageView
                 android:id="@+id/image_locked"
                 android:layout_width="20dp"
@@ -195,5 +197,12 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
         android:src="@drawable/b_main_view_1_emoticon_01happy" />
+    <FrameLayout
+        android:id="@+id/fl_report"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="bottom|left">
+
+    </FrameLayout>
 
 </FrameLayout>

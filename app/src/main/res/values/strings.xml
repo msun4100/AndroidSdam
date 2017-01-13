@@ -33,5 +33,13 @@
     <string name="pick_seattle_place">Pick a Seattle Place</string>
     <string name="app_id">596509787149816</string>
     <string name="exception">Exception: %1$s</string>
+
+    <string name="permission_location_rational">휴대폰 설정 > 앱 > 쓰담에서 위치정보권한을 허용으로 변경해주세요.</string>
+    <string name="permission_location">위치정보</string>
+    <string name="permission_request" formatted="false">%s 접근 권한이 필요합니다. %s</string>
+    <string name="word_settings">설정</string>
+    <string name="word_close">닫기</string>
+
+    <string name="res_err_msg">서버 요청에 실패하였습니다.</string>
     
 </resources>

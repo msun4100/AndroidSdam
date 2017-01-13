@@ -141,16 +141,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:ems="10"
                         android:visibility="invisible" >
-
                         <requestFocus />
                     </EditText>
 
                     <android.support.v7.widget.SwitchCompat
                         android:id="@+id/set_lock_switch"
-                        android:layout_width="40dp"
-                        android:layout_height="33dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_marginRight="15dp"
                         android:textOff="NO"
                         android:textOn="YES" />
@@ -252,7 +250,7 @@
                 android:layout_height="wrap_content"
                 android:background="#ffffffff"
                 android:orientation="vertical"
-                android:visibility="gone" >
+                android:visibility="visible" >
 
                 <TextView
                     android:id="@+id/gt1"
@@ -316,19 +314,25 @@
                     </FrameLayout>
 
                     <SeekBar
+                        android:layout_marginLeft="18dp"
+                        android:layout_marginRight="12dp"
                         android:id="@+id/set_feed_dist"
-                        android:layout_width="210dp"
+                        android:scaleY="1.30"
+                        android:scaleX="1.30"
+                        android:layout_width="160dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_weight="1" />
-
+                        android:scrollbarThumbHorizontal="@drawable/b_main_control_thumb_selector"
+                        />
+                    <!--android:thumb="@drawable/b_main_control_thumb_selector"-->
                     <TextView
                         android:id="@+id/set_feed_dist_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="3dp"
                         android:text="담너머"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textColor="#ff626262"
+                        android:textSize="12dp" />
                 </LinearLayout>
             </LinearLayout>
 

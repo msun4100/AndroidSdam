@@ -205,15 +205,14 @@ public class WriteTwoFragment extends Fragment {
 								}
 								
 								if(sendParams.lock == 1){
-									
 									Intent intent = new Intent(((WriteActivity)getActivity()), MypageActivity.class);
 									startActivity(intent);
 									MainActivity.setAfterWriting(true);
 									MainActivity.setResumeTabNum(2);
 									((WriteActivity) getActivity()).finish();
 								} else {
-									MainActivity.setAfterWriting(true);
-									MainActivity.setResumeTabNum(2);
+									MainActivity.setAfterWriting(true);	//onResume시 initData() 할지 말지
+									MainActivity.setResumeTabNum(2);	//탭이동
 									((WriteActivity) getActivity()).finish();	
 								}
 								dialog.dismiss();

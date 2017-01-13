@@ -13,17 +13,17 @@ public class CommonDataManager {
 		}
 		return instance;
 	}
-	ArrayList<CommonResultItem> items = new ArrayList<CommonResultItem>();
+	ArrayList<CommonResult> items = new ArrayList<CommonResult>();
 	private CommonDataManager() {
 //		items= new ArrayList<Result>();
 	}
 	
-	public void addToTabThreeDataManagerList(CommonResultItem item){
+	public void addToTabThreeDataManagerList(CommonResult item){
 		items.add(item);
 		Log.i("items size", ""+items.size());
 //		Toast.makeText(MyApplication.getContext(), "items size()"+items.size(), Toast.LENGTH_SHORT).show();
 	}
-	public List<CommonResultItem> getTabThreeResultList() {
+	public List<CommonResult> getTabThreeResultList() {
 
 ////		ArrayList<Result> items = new ArrayList<Result>();
 //		for(int i=0; i<items.size(); i++) {

@@ -2,7 +2,7 @@ package kr.me.sdam.common;
 
 import java.io.Serializable;
 
-public class CommonResultItem implements Serializable {
+public class CommonResult implements Serializable {
 	public static final int TAB_ONE = 0;
 	public static final int TAB_TWO = 1;
 	public static final int TAB_THREE = 2;
@@ -31,9 +31,13 @@ public class CommonResultItem implements Serializable {
 	public String image="000";
 	public boolean isSelected=false;
 	public boolean isMyHide=false;
+
 	@Override
 	public String toString() {
-		return content+" "+ category;
+		return "CommonResult{" +
+				"num=" + num +
+				", writer='" + writer + '\'' +
+				", content='" + content + '\'' +
+				'}';
 	}
-	
 }

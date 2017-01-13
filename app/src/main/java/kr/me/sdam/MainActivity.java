@@ -3,6 +3,9 @@ package kr.me.sdam;
 import kr.me.sdam.NetworkManager.OnResultListener;
 import kr.me.sdam.alarm.CustomDialogFragment;
 import kr.me.sdam.common.CommonInfo;
+import kr.me.sdam.common.CommonResult;
+import kr.me.sdam.common.event.EventBus;
+import kr.me.sdam.common.event.EventInfo;
 import kr.me.sdam.database.DBManager;
 import kr.me.sdam.dialogs.UsingLocationDialogFragment;
 import kr.me.sdam.good.GoodInfo;
@@ -46,6 +49,7 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 public class MainActivity extends SlidingFragmentActivity implements
 		MenuFragment.MenuCallback {
+	private static final String TAG = MainActivity.class.getSimpleName();
 	public static final String TAG_TAB_ONE="tab1";
 	public static final String TAG_TAB_TWO="tab2";
 	public static final String TAG_TAB_THREE="tab3";
@@ -124,19 +128,11 @@ public class MainActivity extends SlidingFragmentActivity implements
 		tabHost.setup();
 		pager = (ViewPager) findViewById(R.id.pager);
 		pager.setOffscreenPageLimit(2);
-		mAdapter = new TabsAdapter(this, getSupportFragmentManager(), tabHost,
-				pager);
-		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator(iv1),
-				TabOneFragment.class, null);
-		mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator(iv2),
-				TabTwoFragment.class, null);
-		mAdapter.addTab(tabHost.newTabSpec("tab3").setIndicator(iv3),
-				TabThreeFragment.class, null);
+		mAdapter = new TabsAdapter(this, getSupportFragmentManager(), tabHost, pager);
+		mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator(iv1), TabOneFragment.class, null);
+		mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator(iv2), TabTwoFragment.class, null);
+		mAdapter.addTab(tabHost.newTabSpec("tab3").setIndicator(iv3), TabThreeFragment.class, null);
 		mAdapter.setOnTabChangedListener(tabChangeListener);
-		// -------------------------------
-//		mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//		mProvider = LocationManager.NETWORK_PROVIDER;
-		// -------------------------------
 //		=======google analitics==
 		Tracker t = ((MyApplication)getApplication()).getTracker
 				(MyApplication.TrackerName.APP_TRACKER);
@@ -166,9 +162,6 @@ public class MainActivity extends SlidingFragmentActivity implements
 		if(PropertyManager.getInstance().getUsingLocation() == 0 ) {
 			UsingLocationDialogFragment f = new UsingLocationDialogFragment();
 			f.show(getFragmentManager(), "usinglocationdialog");
-//			mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//			mProvider = LocationManager.NETWORK_PROVIDER;
-//			Log.i("mProvider", ""+mLM.isProviderEnabled(mProvider));
 		}
 	}
 	
@@ -279,8 +272,7 @@ public class MainActivity extends SlidingFragmentActivity implements
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putString("tag", currentTag);
-
+		outState.putString("tag", currentTag);	//기존코드
 	}
 
 	@Override
@@ -308,7 +300,7 @@ public class MainActivity extends SlidingFragmentActivity implements
 		return super.onOptionsItemSelected(item);
 	}
 
-	public void setMenuVisibility() {
+	public void setMenuVisible() {
 		Animation anim = AnimationUtils.loadAnimation(MainActivity.this,
 				R.anim.show_anim);
 		if (menuView.getVisibility() == View.GONE) {
@@ -318,7 +310,7 @@ public class MainActivity extends SlidingFragmentActivity implements
 		}
 	}
 
-	public void setMenuInvisibility() {
+	public void setMenuInvisible() {
 		Animation anim = AnimationUtils.loadAnimation(MainActivity.this,
 				R.anim.hide_anim);
 		if (menuView.getVisibility() == View.VISIBLE) {
@@ -548,5 +540,27 @@ public class MainActivity extends SlidingFragmentActivity implements
 		}
 		
 	}
-	
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if(data != null){
+			Log.e(TAG, "onActivityResult: 1" +data.toString() );
+		} else {
+			Log.e(TAG, "onActivityResult: 2" );
+		}
+		Bundle extraBundle;
+		switch (requestCode) {
+			case TabOneFragment.RC_DETAIL:
+			case TabTwoFragment.RC_DETAIL:
+			case TabThreeFragment.RC_DETAIL:
+				if (resultCode == RESULT_OK) {
+					extraBundle = data.getExtras();
+					CommonResult cr = (CommonResult) extraBundle.getSerializable("_OBJ_");
+					EventInfo eventInfo = new EventInfo(cr, EventInfo.MODE_UPDATE);
+					EventBus.getInstance().post(eventInfo);
+				}
+				break;
+		}
+	}
 }//main

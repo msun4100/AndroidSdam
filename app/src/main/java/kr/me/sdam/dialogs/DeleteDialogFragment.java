@@ -4,6 +4,9 @@ import kr.me.sdam.NetworkManager;
 import kr.me.sdam.NetworkManager.OnResultListener;
 import kr.me.sdam.R;
 import kr.me.sdam.common.CommonInfo;
+import kr.me.sdam.common.CommonResult;
+import kr.me.sdam.common.event.EventBus;
+import kr.me.sdam.common.event.EventInfo;
 import kr.me.sdam.detail.Detail5Replies;
 import kr.me.sdam.detail.MyDetailReplyAdapter;
 import kr.me.sdam.detail.reply.DelReplyInfo;
@@ -11,6 +14,7 @@ import kr.me.sdam.mypage.favor.Favor2Result;
 import kr.me.sdam.mypage.favor.FavorAdapter;
 import kr.me.sdam.mypage.mylist.MyList2Result;
 import kr.me.sdam.mypage.mylist.MyListAdapter;
+import kr.me.sdam.search.MySearchAdapter;
 import kr.me.sdam.tabone.TabOneAdapter;
 import kr.me.sdam.tabone.TabOneResult;
 import kr.me.sdam.tabthree.TabThreeAdapter;
@@ -39,19 +43,23 @@ public class DeleteDialogFragment extends DialogFragment {
 	Detail5Replies mReplyItem;
 	
 	TabOneAdapter tabOneAdapter;
-	TabOneResult tabOneItem;
+	CommonResult tabOneItem;
 	
 	TabTwoAdapter tabTwoAdapter;
-	TabTwoResult tabTwoItem;
+	CommonResult tabTwoItem;
 	
 	TabThreeAdapter tabThreeAdapter;
-	TabThreeResult tabThreeItem;
+//	TabThreeResult tabThreeItem;
+	CommonResult tabThreeItem;
+
+	MySearchAdapter mSearchAdapter;
+	CommonResult mSearchItem;
 	
 	MyListAdapter myListAdapter;
 	MyList2Result myListItem;
 	
 	FavorAdapter favorAdapter;
-	Favor2Result favorItem;
+	CommonResult favorItem;
 	
 	int responseNum;
 	int type;
@@ -75,18 +83,20 @@ public class DeleteDialogFragment extends DialogFragment {
 				responseNum = b.getInt("responseNum");	
 			} else if(type == 1){
 				tabOneAdapter = (TabOneAdapter)b.getSerializable("deletedadapter");
-				tabOneItem = (TabOneResult)b.getSerializable("deletedItem");
+				tabOneItem = (CommonResult)b.getSerializable("deletedItem");
 				responseNum=b.getInt("responseNum");
 			} else if(type == 2){
 				tabTwoAdapter = (TabTwoAdapter)b.getSerializable("deletedadapter");
-				tabTwoItem = (TabTwoResult)b.getSerializable("deletedItem");
+				tabTwoItem = (CommonResult)b.getSerializable("deletedItem");
 				responseNum=b.getInt("responseNum");
 			} else if(type == 3){
 				tabThreeAdapter = (TabThreeAdapter)b.getSerializable("deletedadapter");
-				tabThreeItem = (TabThreeResult)b.getSerializable("deletedItem");
+				tabThreeItem = (CommonResult)b.getSerializable("deletedItem");
 				responseNum=b.getInt("responseNum");
-			} else if(type == 4){
-				//search..
+			} else if(type == 4){ //search..
+				mSearchAdapter = (MySearchAdapter)b.getSerializable("deletedadapter");
+				mSearchItem = (CommonResult)b.getSerializable("deletedItem");
+				responseNum=b.getInt("responseNum");
 			} else if(type == 5){
 				myListAdapter = (MyListAdapter)b.getSerializable("deletedadapter");
 				myListItem = (MyList2Result)b.getSerializable("deletedItem");
@@ -158,6 +168,8 @@ public class DeleteDialogFragment extends DialogFragment {
 								public void onSuccess(Request request, DelArticleInfo result) {
 									if(result.success == CommonInfo.COMMON_INFO_SUCCESS){
 										tabOneAdapter.remove(tabOneItem);
+										EventInfo eventInfo = new EventInfo(tabOneItem, EventInfo.MODE_DELETE);
+										EventBus.getInstance().post(eventInfo);
 									} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
 										Toast.makeText(getActivity(), "내 게시글이 아닙니다.(글 삭제 실패)\nwork:"+result.work, Toast.LENGTH_SHORT).show();
 									}
@@ -178,6 +190,8 @@ public class DeleteDialogFragment extends DialogFragment {
 								public void onSuccess(Request request, DelArticleInfo result) {
 									if(result.success == CommonInfo.COMMON_INFO_SUCCESS){
 										tabTwoAdapter.remove(tabTwoItem);
+										EventInfo eventInfo = new EventInfo(tabTwoItem, EventInfo.MODE_DELETE);
+										EventBus.getInstance().post(eventInfo);
 									} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
 										Toast.makeText(getActivity(), "내 게시글이 아닙니다.(글 삭제 실패)\nwork:"+result.work, Toast.LENGTH_SHORT).show();
 									}
@@ -199,6 +213,8 @@ public class DeleteDialogFragment extends DialogFragment {
 								public void onSuccess(Request request, DelArticleInfo result) {
 									if(result.success == CommonInfo.COMMON_INFO_SUCCESS){
 										tabThreeAdapter.remove(tabThreeItem);
+										EventInfo eventInfo = new EventInfo(tabThreeItem, EventInfo.MODE_DELETE);
+										EventBus.getInstance().post(eventInfo);
 									} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
 										Toast.makeText(getActivity(), "내 게시글이 아닙니다.(글 삭제 실패)\nwork:"+result.work, Toast.LENGTH_SHORT).show();
 									}
@@ -213,7 +229,27 @@ public class DeleteDialogFragment extends DialogFragment {
 							});
 				}//else if
 				else if(type == 4){
-					//search 
+					NetworkManager.getInstance().putSdamDelArticle(getActivity(), responseNum,
+							new OnResultListener<DelArticleInfo>() {
+
+								@Override
+								public void onSuccess(Request request, DelArticleInfo result) {
+									if(result.success == CommonInfo.COMMON_INFO_SUCCESS){
+										mSearchAdapter.remove(mSearchItem);
+										EventInfo eventInfo = new EventInfo(mSearchItem, EventInfo.MODE_DELETE);
+										EventBus.getInstance().post(eventInfo);
+									} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
+										Toast.makeText(getActivity(), "내 게시글이 아닙니다.(글 삭제 실패)\nwork:"+result.work, Toast.LENGTH_SHORT).show();
+									}
+									dismiss();
+								}
+
+								@Override
+								public void onFailure(Request request, int code, Throwable cause) {
+									Toast.makeText(getActivity(), "Unexpected error.."+code, Toast.LENGTH_SHORT).show();
+									dismiss();
+								}
+							});
 				}
 				else if(type == 5){
 					NetworkManager.getInstance().putSdamDelArticle(getActivity(), responseNum, 
@@ -223,6 +259,8 @@ public class DeleteDialogFragment extends DialogFragment {
 								public void onSuccess(Request request, DelArticleInfo result) {
 									if(result.success == CommonInfo.COMMON_INFO_SUCCESS){
 										myListAdapter.remove(myListItem);
+										EventInfo eventInfo = new EventInfo(myListItem, EventInfo.MODE_DELETE);
+										EventBus.getInstance().post(eventInfo);
 									} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
 										Toast.makeText(getActivity(), "내 게시글이 아닙니다.(마이페이지 글 삭제 실패)\nwork:"+result.work, Toast.LENGTH_SHORT).show();
 									}
@@ -244,6 +282,8 @@ public class DeleteDialogFragment extends DialogFragment {
 								public void onSuccess(Request request, DelArticleInfo result) {
 									if(result.success == CommonInfo.COMMON_INFO_SUCCESS){
 										favorAdapter.remove(favorItem);
+										EventInfo eventInfo = new EventInfo(favorItem, EventInfo.MODE_DELETE);
+										EventBus.getInstance().post(eventInfo);
 									} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
 										Toast.makeText(getActivity(), "내 게시글이 아닙니다.(글 삭제 실패)\nwork:"+result.work, Toast.LENGTH_SHORT).show();
 									}

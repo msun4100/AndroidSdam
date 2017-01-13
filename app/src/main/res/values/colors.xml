@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <color name="colorPrimary">#3F51B5</color>
+    <!--<color name="colorPrimaryDark">#ff42baa1</color>-->
+    <color name="colorAccent">#ff42baa1</color>
+
+    <color name="colorAccent2">#ff33b5e5</color> <!-- Range Seek bar body color-->
+
     <color name="a_launcher_button">#ffffffff</color>
     <color name="a_launcher_spinner">#ff26a7c7</color>
     <color name="sdam_text_color">#ff26a7c7</color>
@@ -20,5 +26,7 @@
 	<color name="g_setting_range_seekbar_track">#ff42baa1</color>
 	<color name="edit_text_default_color">#ff3e3e3e</color>
 	<color name="edit_text_tag_color">#ff26a7c7</color>
+
+    <color name="viewpager_circle_color">#ecedec</color>
 	
 </resources>

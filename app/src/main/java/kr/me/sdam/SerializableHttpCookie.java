@@ -10,6 +10,7 @@ import java.net.HttpCookie;
  * Created by dongja94 on 2015-11-27.
  */
 public class SerializableHttpCookie implements Serializable {
+
 //    private static final long serialVersionUID = 6374381323722046732L;
 
     private transient final HttpCookie cookie;

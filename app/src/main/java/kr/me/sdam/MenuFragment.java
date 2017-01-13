@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,8 @@ public class MenuFragment extends Fragment {
 			// Throws...
 		}
 	}
-	
+
+	private static final String TAG = MenuFragment.class.getSimpleName();
 	VerticalSeekBar_Reverse verticalSeekBar = null;
 	TextView vsProgress = null;
 
@@ -46,20 +48,14 @@ public class MenuFragment extends Fragment {
 	boolean bSeekStart = false;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater,
-			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_sliding_distance,
-				container, false);
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.fragment_sliding_distance, container, false);
 		vsProgress = (TextView) view.findViewById(R.id.text_progress);
-		verticalSeekBar = (VerticalSeekBar_Reverse) view
-				.findViewById(R.id.vertical_seekbar);
+		verticalSeekBar = (VerticalSeekBar_Reverse) view.findViewById(R.id.vertical_seekbar);
 		//setMax할 때 reverse 클래스 onTouchEvent값 수정해야 됨
-		setVerticalSeekBar();
-		verticalSeekBar
-				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
+		setVerticalSeekBar();	// onResume에서 호출--> 세팅에서 수정한 값도 반영 되도록
+		verticalSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 //					private static final int NOT_CHANGED = -1;
-
 					@Override
 					public void onStopTrackingTouch(SeekBar seekBar) {
 						// if(progress != NOT_CHANGED) {
@@ -79,13 +75,13 @@ public class MenuFragment extends Fragment {
 						// progressView.setProgress(seekBar.getProgress());
 						// setMessage(""+seekBar.getProgress()); //여기 함수 안먹음.
 						// setMessage(""+progress);
-						vsProgress.setText("stop :");
-						Toast.makeText(getActivity(), "stop:outer",
-								Toast.LENGTH_SHORT).show();
+						Log.e(TAG, "onStopTrackingTouch: " + seekBar.getProgress() );
 					}
 
 					@Override
 					public void onStartTrackingTouch(SeekBar seekBar) {
+						Log.e(TAG, "onStartTrackingTouch: " + seekBar.getProgress());
+						PropertyManager.getInstance().setDistance(seekBar.getProgress());	//리버스로 돌렸으니까 스타트가 stop 함수
 						// Toast.makeText(getActivity(), "onstart",
 						// Toast.LENGTH_SHORT).show();
 						// progress = NOT_CHANGED;
@@ -94,8 +90,7 @@ public class MenuFragment extends Fragment {
 					}
 
 					@Override
-					public void onProgressChanged(SeekBar seekBar,
-							int progress, boolean fromUser) {
+					public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 						if(progress>=100){
 							vsProgress.setText("  "+progress );
 						} else if(progress < 100){
@@ -104,24 +99,30 @@ public class MenuFragment extends Fragment {
 						if(progress >= MAX_PROGRESS){
 							vsProgress.setText("담너머");
 						}
-						PropertyManager.getInstance().setDistance(progress);
+//						PropertyManager.getInstance().setDistance(progress);
 
 					}
 				});
-
 		return view;
 	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		setVerticalSeekBar();
+	}
+
 	private void setVerticalSeekBar(){
 		verticalSeekBar.setMax(MAX_PROGRESS);  
 		int initNum = (PropertyManager.getInstance().getDistance());
 		verticalSeekBar.setProgress(initNum);
 		
-		if(initNum>=100){
+		if(initNum >= 100){
 			vsProgress.setText("  "+initNum );
 		} else if(initNum < 100){
 			vsProgress.setText("   "+initNum);
 		} 
-		if(verticalSeekBar.getProgress()>=MAX_PROGRESS){
+		if(verticalSeekBar.getProgress() >= MAX_PROGRESS){
 			vsProgress.setText("담너머");
 		}
 		

@@ -169,8 +169,7 @@ public class SettingMenuFragment extends Fragment {
 			public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar,
 					Integer minValue, Integer maxValue) {
 				// handle changed range values
-				Log.i(TAG_RANGE, "User selected new range values: MIN="
-						+ minValue + ", MAX=" + maxValue);
+				Log.i(TAG_RANGE, "User selected new range values: MIN=" + minValue + ", MAX=" + maxValue);
 
 				min.setText(minValue.toString());
 				max.setText(maxValue.toString());
@@ -185,7 +184,7 @@ public class SettingMenuFragment extends Fragment {
 		int size = Math.round( 3 * dm.density);
 		LinearLayout.LayoutParams param = new LinearLayout.LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT );
 		param.bottomMargin= size;
-		param.width=Math.round( 210 * dm.density);
+		param.width=Math.round( 196 * dm.density);
 		param.height=Math.round( 52 * dm.density);
 		param.leftMargin=Math.round( 60 * dm.density);
 		layout.setLayoutParams(param);

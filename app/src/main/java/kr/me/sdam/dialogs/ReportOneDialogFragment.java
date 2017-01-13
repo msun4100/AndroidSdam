@@ -4,6 +4,9 @@ import kr.me.sdam.MyApplication;
 import kr.me.sdam.NetworkManager;
 import kr.me.sdam.NetworkManager.OnResultListener;
 import kr.me.sdam.R;
+import kr.me.sdam.common.CommonResult;
+import kr.me.sdam.common.event.EventBus;
+import kr.me.sdam.common.event.EventInfo;
 import kr.me.sdam.detail.Detail3Article;
 import kr.me.sdam.detail.DetailActivity;
 import kr.me.sdam.mypage.favor.Favor2Result;
@@ -36,21 +39,22 @@ public class ReportOneDialogFragment extends DialogFragment {
 	public ReportOneDialogFragment(){}
 	
 	TabThreeAdapter mThreeAdapter;
-	TabThreeResult mThreeItem;
+	CommonResult mThreeItem;
 	
 	TabTwoAdapter mTwoAdapter;
-	TabTwoResult mTwoItem;
-	
+	CommonResult mTwoItem;
+
 	TabOneAdapter mOneAdapter;
-	TabOneResult mOneItem;
+//	TabOneResult mOneItem;
+	CommonResult mOneItem;
 	
 	MySearchAdapter mSearchAdapter;
-	SearchResult mSearchItem;
+	CommonResult mSearchItem;
 	
 	FavorAdapter mFavorAdapter;
-	Favor2Result mFavorItem;
-	
-	Detail3Article mDetailItem;
+	CommonResult mFavorItem;
+
+	CommonResult mDetailItem;
 	int type;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -61,27 +65,27 @@ public class ReportOneDialogFragment extends DialogFragment {
 			type = b.getInt("curruenttab");
 			switch(type){
 			case 0:
-				mDetailItem = (Detail3Article)b.getSerializable("reporteditem");
+				mDetailItem = (CommonResult)b.getSerializable("reporteditem");
 				break;
 			case 1:
 				mOneAdapter = (TabOneAdapter)b.getSerializable("reportedadapter");
-				mOneItem = (TabOneResult)b.getSerializable("reporteditem");
+				mOneItem = (CommonResult)b.getSerializable("reporteditem");
 				break;
 			case 2:
 				mTwoAdapter = (TabTwoAdapter)b.getSerializable("reportedadapter");
-				mTwoItem = (TabTwoResult)b.getSerializable("reporteditem");
+				mTwoItem = (CommonResult)b.getSerializable("reporteditem");
 				break;
 			case 3:
 				mThreeAdapter = (TabThreeAdapter)b.getSerializable("reportedadapter");
-				mThreeItem = (TabThreeResult)b.getSerializable("reporteditem");
+				mThreeItem = (CommonResult)b.getSerializable("reporteditem");
 				break;
 			case 4:
 				mSearchAdapter = (MySearchAdapter)b.getSerializable("reportedadapter");
-				mSearchItem = (SearchResult)b.getSerializable("reporteditem");
+				mSearchItem = (CommonResult)b.getSerializable("reporteditem");
 				break;
 			case 6:
 				mFavorAdapter = (FavorAdapter)b.getSerializable("reportedadapter");
-				mFavorItem = (Favor2Result)b.getSerializable("reporteditem");
+				mFavorItem = (CommonResult)b.getSerializable("reporteditem");
 				break;
 			}
 		}
@@ -120,6 +124,8 @@ public class ReportOneDialogFragment extends DialogFragment {
 						@Override
 						public void onSuccess(Request request, ReportInfo result) {
 							mOneAdapter.remove(mOneItem);
+							EventInfo eventInfo = new EventInfo(mOneItem, EventInfo.MODE_DELETE);
+							EventBus.getInstance().post(eventInfo);
 							Toast.makeText(getActivity(), "신고 처리가 완료 되었습니다.", Toast.LENGTH_SHORT).show();
 							dismiss();
 						}
@@ -137,6 +143,8 @@ public class ReportOneDialogFragment extends DialogFragment {
 						@Override
 						public void onSuccess(Request request, ReportInfo result) {
 							mTwoAdapter.remove(mTwoItem);
+							EventInfo eventInfo = new EventInfo(mTwoItem, EventInfo.MODE_DELETE);
+							EventBus.getInstance().post(eventInfo);
 							Toast.makeText(getActivity(), "신고 처리가 완료 되었습니다.", Toast.LENGTH_SHORT).show();
 							dismiss();
 						}
@@ -156,6 +164,8 @@ public class ReportOneDialogFragment extends DialogFragment {
 						@Override
 						public void onSuccess(Request request, ReportInfo result) {
 							mThreeAdapter.remove(mThreeItem);
+							EventInfo eventInfo = new EventInfo(mThreeItem, EventInfo.MODE_DELETE);
+							EventBus.getInstance().post(eventInfo);
 							Toast.makeText(getActivity(), "신고 처리가 완료 되었습니다.", Toast.LENGTH_SHORT).show();
 							dismiss();
 						}
@@ -175,6 +185,8 @@ public class ReportOneDialogFragment extends DialogFragment {
 						@Override
 						public void onSuccess(Request request, ReportInfo result) {
 							mSearchAdapter.remove(mSearchItem);
+							EventInfo eventInfo = new EventInfo(mSearchItem, EventInfo.MODE_DELETE);
+							EventBus.getInstance().post(eventInfo);
 							Toast.makeText(getActivity(), "신고 처리가 완료 되었습니다.", Toast.LENGTH_SHORT).show();
 							dismiss();
 						}
@@ -194,6 +206,8 @@ public class ReportOneDialogFragment extends DialogFragment {
 						@Override
 						public void onSuccess(Request request, ReportInfo result) {
 							mFavorAdapter.remove(mFavorItem);
+							EventInfo eventInfo = new EventInfo(mFavorItem, EventInfo.MODE_DELETE);
+							EventBus.getInstance().post(eventInfo);
 							Toast.makeText(getActivity(), "신고 처리가 완료 되었습니다.", Toast.LENGTH_SHORT).show();
 							dismiss();
 						}
@@ -213,6 +227,8 @@ public class ReportOneDialogFragment extends DialogFragment {
 								@Override
 								public void onSuccess(Request request, ReportInfo result) {
 									Toast.makeText(getActivity(), "신고 처리가 완료 되었습니다.", Toast.LENGTH_SHORT).show();
+									EventInfo eventInfo = new EventInfo(mDetailItem, EventInfo.MODE_DELETE);
+									EventBus.getInstance().post(eventInfo);
 									((DetailActivity)getActivity()).finish();
 									dismiss();
 								}

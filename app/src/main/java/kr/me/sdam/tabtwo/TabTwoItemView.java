@@ -2,14 +2,12 @@ package kr.me.sdam.tabtwo;
 
 import kr.me.sdam.BgImage;
 import kr.me.sdam.R;
-import kr.me.sdam.common.CommonResultItem;
-import kr.me.sdam.tabthree.TabThreeItemView;
-import kr.me.sdam.tabthree.TabThreeResult;
+import kr.me.sdam.common.CommonResult;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -69,7 +67,7 @@ public class TabTwoItemView extends FrameLayout {
 			case R.id.image_report:
 				if (mListener != null) {
 					mListener.onLikeClick(TabTwoItemView.this, mItem,
-							CommonResultItem.TYPE_REPORT);
+							CommonResult.TYPE_REPORT);
 				}
 				break;
 			// case R.id.image_reply:
@@ -87,19 +85,19 @@ public class TabTwoItemView extends FrameLayout {
 			case R.id.frame_distance:
 				if (mListener != null) {
 					mListener.onLikeClick(TabTwoItemView.this, mItem,
-							CommonResultItem.TYPE_DISTANCE);
+							CommonResult.TYPE_DISTANCE);
 				}
 				break;
 			case R.id.frame_reply:
 				if (mListener != null) {
 					mListener.onLikeClick(TabTwoItemView.this, mItem,
-							CommonResultItem.TYPE_REPLY);
+							CommonResult.TYPE_REPLY);
 				}
 				break;
 			case R.id.frame_like:
 				if (mListener != null) {
 					mListener.onLikeClick(TabTwoItemView.this, mItem,
-							CommonResultItem.TYPE_LIKE);
+							CommonResult.TYPE_LIKE);
 				}
 				break;
 			default:
@@ -188,7 +186,7 @@ public class TabTwoItemView extends FrameLayout {
 				Integer.parseInt(item.image));
 		background.setImageResource(bgResource);
 	}
-	public void setItemData(CommonResultItem item) {
+	public void setItemData(CommonResult item) {
 		mItem = (TabTwoResult)item;
 
 		if (item.locate == 99999) {

@@ -2,6 +2,7 @@ package kr.me.sdam.detail;
 
 import java.io.Serializable;
 
+//Replace with CommonResult Class
 
 
 public class Detail3Article implements Serializable{
@@ -16,7 +17,7 @@ public class Detail3Article implements Serializable{
 	public int emotion;
 	public String category;
 	public String image;
-	
+
 
 //	@SerializedName("item")
 //	public ArrayList<MovieItem> items;

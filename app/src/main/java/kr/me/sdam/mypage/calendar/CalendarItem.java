@@ -24,4 +24,5 @@ public class CalendarItem {
 		this.emotionIcon=emotionIcon;
 		this.items = new ArrayList();
 	}
+
 }

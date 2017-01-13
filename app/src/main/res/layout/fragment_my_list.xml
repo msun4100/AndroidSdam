@@ -124,20 +124,25 @@
                 android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>
-    <!-- 
-    <ListView 
-        android:id="@+id/list_mywriting"
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible">
-    </ListView>
--->	
-    <ListView
-        android:id="@+id/list_mywriting"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible" />
- 
+        android:paddingTop="0dp"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:paddingBottom="0dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
     <LinearLayout
         android:id="@+id/my_list_calendar"
         android:layout_width="match_parent"

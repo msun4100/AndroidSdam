@@ -97,7 +97,7 @@ public class NetworkManager {
 		CookieManager cookieManager = new CookieManager(new PersistentCookieStore(context), CookiePolicy.ACCEPT_ALL);
 		builder.cookieJar(new JavaNetCookieJar(cookieManager));
 
-//        disableCertificateValidation(context, builder);
+//        disableCertificateValidation(context, builder);	// https 요청할때 주석 풀고 testSSL 요청
 
 		mClient = builder.build();
 	}
@@ -215,6 +215,31 @@ public class NetworkManager {
 //    private static final String SERVER_URL = "http://10.0.3.2:3000";
 	private static final String SERVER = "http://52.78.114.166:3000";
 
+	public Request testSSL(Context context, final OnResultListener<String> listener) {
+		Request request = new Request.Builder().url("https://52.78.114.166:443").build();
+		final CallbackObject<String> callbackObject = new CallbackObject<String>();
+
+		callbackObject.request = request;
+		callbackObject.listener = listener;
+		mClient.newCall(request).enqueue(new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
+				callbackObject.exception = e;
+				Message msg = mHandler.obtainMessage(MESSAGE_FAILURE, callbackObject);
+				mHandler.sendMessage(msg);
+			}
+
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				callbackObject.result = response.body().string();
+				Message msg = mHandler.obtainMessage(MESSAGE_SUCCESS, callbackObject);
+				mHandler.sendMessage(msg);
+			}
+		});
+
+		return request;
+
+	}
 
 	public static final String REGISTER_URL = SERVER + "/register";
 	public Request putSdamRegister(Context context, RegisterInfoData userData, final OnResultListener<RegisterInfo> listener) {
@@ -454,7 +479,7 @@ public class NetworkManager {
 	}
 
 	public static final String TAB_TWO_URL = SERVER + "/issue/";
-	public Request getSdamIssue(Context context, String  keyword, final OnResultListener<TabTwoInfo> listener) {
+	public Request getSdamIssue(Context context, String  start, final OnResultListener<TabTwoInfo> listener) {
 		try {
 			String url = TAB_TWO_URL;
 			final CallbackObject<TabTwoInfo> callbackObject = new CallbackObject<TabTwoInfo>();

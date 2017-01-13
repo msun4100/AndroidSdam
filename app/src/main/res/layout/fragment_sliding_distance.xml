@@ -28,8 +28,8 @@
         android:layout_width="wrap_content"
         android:layout_height="430dp"
         android:layout_gravity="center"
-        android:layout_marginTop="40dp" 
-        
+        android:layout_marginTop="40dp"
+        android:thumb="@drawable/b_main_control_bar_button_on"
         />
     <!--
     android:thumb="@drawable/b_main_control_bar_button_on"

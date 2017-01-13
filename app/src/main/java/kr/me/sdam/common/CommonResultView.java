@@ -38,7 +38,7 @@ public class CommonResultView extends FrameLayout{
 
 	ImageView iconEmotionView;
 	ImageView background;
-	CommonResultItem mItem;
+	CommonResult mItem;
 
 	View frameDistanceView;
 	View frameReplyView;
@@ -46,7 +46,7 @@ public class CommonResultView extends FrameLayout{
 	View layoutView;
 
 	public interface OnLikeClickListener {
-		public void onLikeClick(View v, CommonResultItem item, int type);
+		public void onLikeClick(View v, CommonResult item, int type);
 	}
 
 	OnLikeClickListener mListener;
@@ -64,7 +64,7 @@ public class CommonResultView extends FrameLayout{
 			case R.id.image_report:
 				if (mListener != null) {
 					mListener.onLikeClick(CommonResultView.this, mItem,
-							CommonResultItem.TYPE_REPORT);
+							CommonResult.TYPE_REPORT);
 				}
 				break;
 			// case R.id.image_reply:
@@ -82,19 +82,19 @@ public class CommonResultView extends FrameLayout{
 			case R.id.frame_distance:
 				if (mListener != null) {
 					mListener.onLikeClick(CommonResultView.this, mItem,
-							CommonResultItem.TYPE_DISTANCE);
+							CommonResult.TYPE_DISTANCE);
 				}
 				break;
 			case R.id.frame_reply:
 				if (mListener != null) {
 					mListener.onLikeClick(CommonResultView.this, mItem,
-							CommonResultItem.TYPE_REPLY);
+							CommonResult.TYPE_REPLY);
 				}
 				break;
 			case R.id.frame_like:
 				if (mListener != null) {
 					mListener.onLikeClick(CommonResultView.this, mItem,
-							CommonResultItem.TYPE_LIKE);
+							CommonResult.TYPE_LIKE);
 				}
 				break;
 			default:
@@ -134,7 +134,7 @@ public class CommonResultView extends FrameLayout{
 
 	}
 
-	public void setItemData(CommonResultItem item) {
+	public void setItemData(CommonResult item) {
 		mItem = item;
 
 		if(item.locate==99999){	

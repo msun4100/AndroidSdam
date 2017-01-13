@@ -91,6 +91,32 @@
             android:screenOrientation="portrait" >
         </activity>
 
+        <!-- bug fix -->
+        <!-- Register AnalyticsReceiver and AnalyticsService to support background dispatching on non-Google Play devices. -->
+        <receiver
+            android:name="com.google.android.gms.analytics.AnalyticsReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.analytics.ANALYTICS_DISPATCH"/>
+            </intent-filter>
+        </receiver>
+        <service
+            android:name="com.google.android.gms.analytics.AnalyticsService"
+            android:enabled="true"
+            android:exported="false"/>
+        <!-- Used for Google Play Store Campaign Measurement-->
+        <receiver android:name="com.google.android.gms.analytics.CampaignTrackingReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER"/>
+            </intent-filter>
+        </receiver>
+        <service android:name="com.google.android.gms.analytics.CampaignTrackingService"
+            android:enabled="true"
+            android:exported="false"/>
+        <!-- bug fix -->
+
         <receiver
             android:name=".GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
@@ -126,8 +152,6 @@
         <activity
             android:name="kr.me.sdam.mypage.PasswordActivity"
             android:label="@string/title_activity_password" >
-        </activity>
-        <activity android:name=".kakaolink.KakaoLinkActivity" >
         </activity>
 
         <activity android:name="kr.me.sdam.mypage.ChangePWActivity" >

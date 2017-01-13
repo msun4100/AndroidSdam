@@ -1,8 +1,5 @@
 package kr.me.sdam.tabthree;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import kr.me.sdam.MainActivity;
 import kr.me.sdam.MyApplication;
 import kr.me.sdam.NetworkManager;
@@ -11,58 +8,61 @@ import kr.me.sdam.PagerFragment;
 import kr.me.sdam.PropertyManager;
 import kr.me.sdam.R;
 import kr.me.sdam.common.CommonInfo;
-import kr.me.sdam.common.CommonResultItem;
+import kr.me.sdam.common.CommonResult;
+import kr.me.sdam.common.CommonResultAdapter;
+import kr.me.sdam.common.OnItemClickListener;
+import kr.me.sdam.common.OnItemLongClickListener;
+import kr.me.sdam.common.PreLoadLayoutManager;
+import kr.me.sdam.common.event.EventBus;
+import kr.me.sdam.common.event.EventInfo;
 import kr.me.sdam.detail.DetailActivity;
 import kr.me.sdam.dialogs.DeleteDialogFragment;
 import kr.me.sdam.dialogs.ReportMenuDialogFragment;
+import kr.me.sdam.dialogs.WaitingDialogFragment;
 import kr.me.sdam.good.GoodCancelInfo;
 import kr.me.sdam.good.GoodInfo;
-import kr.me.sdam.tabthree.TabThreeAdapter.OnAdapterItemClickListener;
 import okhttp3.Request;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
+import android.os.Looper;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListView;
+
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.squareup.otto.Subscribe;
 
 public class TabThreeFragment extends PagerFragment {
 
-	private  static final String TAG = TabThreeFragment.class.getSimpleName();
-	Handler mHandler = new Handler();
-	long startTime;
-	
-	ListView listView;
-	TabThreeAdapter mAdapter;
+	private static final String TAG = TabThreeFragment.class.getSimpleName();
+	public static final int RC_DETAIL = 103;
 	GoodInfo goodInfo;
 	GoodCancelInfo goodCancelInfo;
-	int userId = 0;
-	
-	
+
 	public int lastPosition=0;
-	Handler readHandler = new Handler();
-	public int newRequestPage =1;
-	public int currentNewRequestPage=1;
-	private TabThreeResult clickedItem;
-//	=============
-	public int getLastPosition(){
-		return lastPosition;
-	}
+
+	RecyclerView recyclerView;
+//	CommonResultAdapter mAdapter;
+	TabThreeAdapter mAdapter;
+//	LinearLayoutManager layoutManager;
+	PreLoadLayoutManager layoutManager;
+	SwipeRefreshLayout refreshLayout;
+	boolean isLast = false;
+	Handler mHandler = new Handler(Looper.getMainLooper());
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -71,110 +71,100 @@ public class TabThreeFragment extends PagerFragment {
 		t.setScreenName("TabThreeFragment");
 		t.send(new HitBuilders.AppViewBuilder().build());
 	}
-	@Override
-	public void onStart() {
-		super.onStart();
-		GoogleAnalytics.getInstance(getActivity()).reportActivityStart(getActivity());
-	}
-	@Override
-	public void onStop() {
-		super.onStop();
-		GoogleAnalytics.getInstance(getActivity()).reportActivityStop(getActivity());
-	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
 		View view = inflater.inflate(R.layout.fragment_tab_three, container, false);
 
-		listView = (ListView) view.findViewById(R.id.list_tabthree);
-
-		mAdapter = new TabThreeAdapter(getActivity());
-		listView.setAdapter(mAdapter);
-//		mAdapter.clear();
-		TabThreeDataManager.getInstance().clearDataManagerList();
-//		newRequestPage =1;
-//		currentNewRequestPage=1;
-		mAdapter.setOnAdapterItemClickListener(new OnAdapterItemClickListener() {
-			
+		refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
+		refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
+		refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
 			@Override
-			public void onAdapterItemClick(TabThreeAdapter adapter, View view,
-					TabThreeResult item, int type) {
-				switch (type) {
-				case CommonResultItem.TYPE_INVALID:
-					Toast.makeText(getActivity(), "INVALID TYPE", Toast.LENGTH_SHORT).show();
-					break;
-				case CommonResultItem.TYPE_DISTANCE:
-					break;
-				case CommonResultItem.TYPE_REPORT:
-					Bundle b = new Bundle();
-					b.putSerializable("reporteditem", item);
-					b.putSerializable("reportedadapter", adapter);
-					b.putInt("curruenttab", 3);
-					ReportMenuDialogFragment f = new ReportMenuDialogFragment();
-					f.setArguments(b);
-					f.show(getFragmentManager(), "dialog");
-					break;
-				case CommonResultItem.TYPE_REPLY:
-					break;
-				case CommonResultItem.TYPE_LIKE:
-					setLikeDisplay(item);
-					break;
-				}
+			public void onRefresh() {
+				mHandler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						start = 1;
+						initData();
+					}
+				}, 1000);
 			}
 		});
-	
-		listView.setOnScrollListener(new OnScrollListener() {
+		recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
+		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
-			public void onScroll(AbsListView view, int firstVisibleItem,
-					int visibleItemCount, int totalItemCount) {
-				int currentPosition = view.getFirstVisiblePosition();
-				if (currentPosition > lastPosition) {
-					((MainActivity) getActivity()).setMenuInvisibility();
+			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+				super.onScrollStateChanged(recyclerView, newState);
+				if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
+					getMoreItem();
 				}
-				if (currentPosition < lastPosition) {
-					((MainActivity) getActivity()).setMenuVisibility();
-				}
-				lastPosition = currentPosition;
 			}
-
 			@Override
-			public void onScrollStateChanged(AbsListView view, int scrollState) {
-			}
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+				super.onScrolled(recyclerView, dx, dy);
+				int totalItemCount = mAdapter.getItemCount();
+				int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+				if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
+					isLast = true;
+				} else {
+					isLast = false;
+				}
+				if (dy > 0) { // Scroll Down
+					((MainActivity) getActivity()).setMenuInvisible();
+				} else if (dy < 0) { // Scroll Up
+					((MainActivity) getActivity()).setMenuVisible();
+				}
 
+
+			}
 		});
-		listView.setOnItemClickListener(new OnItemClickListener() {
-
+//		mAdapter = new CommonResultAdapter();
+		mAdapter = new TabThreeAdapter();
+		mAdapter.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				Object data = listView.getItemAtPosition(position);
-				TabThreeResult item = (TabThreeResult) data;
-				clickedItem = (TabThreeResult)item;		//리스트뷰에서 현재 클릭된 아이템 임시저장, 라이크 동기화 위해
+			public void onItemClick(View view, int position) {
+				Log.e(TAG, "onItemClick: " );
+				CommonResult item = mAdapter.getItem(position);
 				Intent intent = new Intent(getActivity(), DetailActivity.class);
-				intent.putExtra(CommonResultItem.REQUEST_NUMBER, ""+item.num);
-				// Bundle b = new Bundle();
-				// b.putString("backgroundId", ""+item.backgroundId);
-				// b.putString("content", ""+item.content);
-//				intent.putExtra(TAB_TWO_ITEM, item);
-				// // intent.putExtras(new Bundle());
-//				startActivityForResult(intent, 0);
-				startActivity(intent);
+				intent.putExtra(CommonResult.REQUEST_NUMBER, ""+item.num);
+//				startActivity(intent);
+				getActivity().startActivityForResult(intent, RC_DETAIL);
 			}
 		});
-		
-//		====글삭제 임시로 롱클릭 처리해서 시연======================
-		listView.setOnItemLongClickListener(new OnItemLongClickListener() {
-
+		mAdapter.setOnAdapterItemClickListener(new CommonResultAdapter.OnAdapterItemClickListener() {
 			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view,
-					int position, long id) {
-//				final int currentPosition = position;
-//				CommonResultItem ttr = (CommonResultItem)listView.getItemAtPosition(position);
-				
-				TabThreeResult longClickedItem = (TabThreeResult)listView.getItemAtPosition(position);
-				
-//				if(longClickedItem.writer == PropertyManager.getInstance().getUserId()){
+			public void onAdapterItemClick(CommonResultAdapter adapter, View view, int position, CommonResult item, int type) {
+				switch (type) {
+					case CommonResult.TYPE_INVALID:
+						Log.e(TAG, "onAdapterItemClick: INVALID TYPE" );
+						break;
+					case CommonResult.TYPE_DISTANCE:
+						break;
+					case CommonResult.TYPE_REPORT:
+						Log.e(TAG, "onAdapterItemClick: report click");
+						Bundle b = new Bundle();
+						b.putSerializable("reporteditem", item);
+						b.putSerializable("reportedadapter", mAdapter);
+						b.putInt("curruenttab", 3);
+						ReportMenuDialogFragment f = new ReportMenuDialogFragment();
+						f.setArguments(b);
+						f.show(getFragmentManager(), "dialog");
+						break;
+					case CommonResult.TYPE_REPLY:
+						break;
+					case CommonResult.TYPE_LIKE:
+						setLikeDisplay(item);
+						break;
+				}
+			}
+		});
+		mAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public void onItemLongClick(View view, int position) {
+				CommonResult longClickedItem = mAdapter.getItem(position);
+				Log.e(TAG, "onItemLongClick: " + longClickedItem);
 				if(longClickedItem.writer.equals( PropertyManager.getInstance().getUserId() )){
 					Bundle b = new Bundle();
 					b.putSerializable("deletedItem", longClickedItem);
@@ -183,26 +173,100 @@ public class TabThreeFragment extends PagerFragment {
 					b.putInt("activityType", 3); // 0==댓글, 1,2,3==탭게시물
 					DeleteDialogFragment f = new DeleteDialogFragment();
 					f.setArguments(b);
-					f.show(getActivity().getSupportFragmentManager(), "deletereplydialog");	
+					f.show(getActivity().getSupportFragmentManager(), "deletereplydialog");
 				}
-				
-				return true;
 			}
 		});
-//		==========================
-		
+		recyclerView.setAdapter(mAdapter);
+//		layoutManager = new LinearLayoutManager(getActivity());
+		layoutManager = new PreLoadLayoutManager(getActivity());
+//        layoutManager.scrollToPosition(5);
+//        layoutManager.smoothScrollToPosition(recyclerView, null, 5);
+		recyclerView.setLayoutManager(layoutManager);
+//        recyclerView.addItemDecoration(new BoardDecoration(getActivity()));
+
+
+
+		initData();
+
 		return view;
 	}
 
 	private void initData() {
-		mAdapter.clear();
-		List<TabThreeResult> items = TabThreeDataManager.getInstance()
-				.getDataManagerList();
-		for (TabThreeResult id : items) {
-			mAdapter.add(id);
+
+		NetworkManager.getInstance().getSdamNew(getActivity(),
+				""+start,
+				new OnResultListener<TabThreeInfo>() {
+
+					@Override
+					public void onSuccess(Request request, TabThreeInfo result) {
+						if (result.success == CommonInfo.COMMON_INFO_SUCCESS) {
+							if (result.result != null) {
+								mAdapter.clear();
+								mAdapter.setTotalCount(Integer.MAX_VALUE - DISPLAY_NUM);	// sdam 서버는 total 변수 안씀, DisplayNum을 빼서 오버플로 방지
+								mAdapter.addAll(result.result);
+								start++;
+								isMoreData = true;	// getMoreItem function variable
+							} else {
+								Log.e(TAG, "onSuccess: result.result == null" );
+							}
+						} else if (result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO) {
+							Log.e(TAG, "onSuccess: result.success == 0 "+ result.work );
+						}
+						refreshLayout.setRefreshing(false);
+						dialog.dismiss();
+					}
+
+					@Override
+					public void onFailure(Request request, int code, Throwable cause) {
+						Toast.makeText( getActivity(), "서버에 연결할 수 없습니다. #"+code, Toast.LENGTH_SHORT).show();
+						refreshLayout.setRefreshing(false);
+						dialog.dismiss();
+					}
+				});
+		dialog = new ProgressDialog(getActivity());
+		dialog.setTitle("타이틀");
+		dialog.setMessage("데이터 로딩중..");
+		dialog.show();
+	}	//init
+
+	boolean isMoreData = true;
+	ProgressDialog dialog = null;
+	private static final int DISPLAY_NUM = 10;
+	private int start=1;
+	private String reqDate = null;
+
+	private void getMoreItem(){
+		Log.e(TAG, "getMoreItem: page: " +start);
+		if (isMoreData == false) {
+			Log.e(TAG, "getMoreItem: has no more items" );
+			return;
 		}
-		if(lastPosition != 0){
-			listView.setSelection(lastPosition);
+		if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount() ) {
+            NetworkManager.getInstance().getSdamNew(getActivity(), "" + start,
+					new OnResultListener<TabThreeInfo>() {
+                        @Override
+                        public void onSuccess(Request request, TabThreeInfo result) {
+                            if (result.success == CommonInfo.COMMON_INFO_SUCCESS) {
+                                if (result.result != null) {
+                                    mAdapter.addAll(result.result);
+                                    start++;
+                                } else { // success == 1 && result == null
+                                    Log.e(TAG, "onSuccess: result.result == null " + result.work );
+									isMoreData = false;	// Never call this function
+                                }
+                            } else if (result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO) {
+                                Log.e(TAG, "onSuccess: result.success == 0 "+ result.work );
+                            }
+                            refreshLayout.setRefreshing(false);
+                        }
+
+                        @Override
+                        public void onFailure(Request request, int code, Throwable cause) {
+                            Toast.makeText( getActivity(), "서버에 연결할 수 없습니다. #"+code, Toast.LENGTH_SHORT).show();
+                            refreshLayout.setRefreshing(false);
+                        }
+                    });
 		}
 	}
 
@@ -210,74 +274,14 @@ public class TabThreeFragment extends PagerFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if(MainActivity.getAfterWriting()){
-			lastPosition=0;
+		if(MainActivity.getAfterWriting() == true){
 			MainActivity.setAfterWriting(false);
+			start = 1;
+			initData();
 		}
-//		wf3 = new WaitingDialogFragment();
-//		FragmentManager fm = getActivity().getSupportFragmentManager();
-//		FragmentTransaction ft = fm.beginTransaction();
-//		ft.addToBackStack(null);
-//		wf3.setCancelable(false); // 딴영역 눌러도 안닫히게 하는 옵션
-//		wf3.show(ft, "dialog3");
-		
-//		issueRequestPage = 1;		
-		NetworkManager.getInstance().getSdamNew(getActivity(), 
-				String.valueOf(newRequestPage),
-				new OnResultListener<TabThreeInfo>() {
-
-					@Override
-					public void onSuccess(Request request, TabThreeInfo result) {
-						
-						if (result.success == CommonInfo.COMMON_INFO_SUCCESS) {
-							if (result.result != null) {
-								listView.setAdapter(mAdapter);
-								// **********Clear()할지 말지******
-								mAdapter.clear();
-								mAdapter.setTotalCount(1000);
-								if(TabThreeDataManager.getInstance().getDataManagerList().size() > 0){
-									mAdapter.addAll((ArrayList<TabThreeResult>) TabThreeDataManager.getInstance().getDataManagerList());
-								}
-								mAdapter.addAll(result.result);
-//								for (TabThreeResult r : result.result) {
-//									mAdapter.add(r);
-//								}
-								listView.setSelection(lastPosition);
-//								if(lastPosition != 0){
-//									//새로고침한 경우 리스트 자리 맞추기 위해
-//									if(currentNewRequestPage != newRequestPage && (lastPosition<20) ){
-//										lastPosition=0;
-//										listView.setSelection(lastPosition);
-//									} else {//디폴트 리쥼 리스트 자리 맞추기
-//										listView.setSelection(lastPosition%MainActivity.COMMON_LIST_ITEM_SIZE);	
-//									}
-//									currentNewRequestPage = newRequestPage;
-//								}
-							} else if (result.result == null) {
-								Log.e(TAG, "onSuccess: result.result == null" );
-//								Toast.makeText(getActivity(), "서버에 연결할 수 없습니다.", Toast.LENGTH_SHORT).show();
-							}
-						} else if (result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO) {
-							Log.e(TAG, "onSuccess: result.success == 0 "+ result.work );
-//							Toast.makeText(getActivity(), "서버에 연결할 수 없습니다." + result.work , Toast.LENGTH_SHORT).show();
-						} else {
-							Toast.makeText(getActivity(),
-									"new/# : Unexpected Network Error..", Toast.LENGTH_SHORT).show();
-						}
-						
-//						if(wf3!=null){
-//							if(wf3.isVisible()){
-//								wf3.dismiss();
-//							}
-//						}
-
-					}
-
-					@Override
-					public void onFailure(Request request, int code, Throwable cause) {
-						Toast.makeText( getActivity(), "서버에 연결할 수 없습니다. #"+code, Toast.LENGTH_SHORT).show();
-					}
-				});
+//        Log.e(TAG, "onResume: "+MyApplication.getCurrentTimeStampString() );
+//        initData();
+//		testSSL();
 	}
 
 	@Override
@@ -295,37 +299,12 @@ public class TabThreeFragment extends PagerFragment {
 			((MainActivity)getActivity()).buttons[0].setBackgroundResource(R.drawable.b_main_navigationbar_on_1home);
 		}
 
-	}// setUser~
-//	@Override
-//	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//		super.onActivityResult(requestCode, resultCode, data);
-//		//수행을 제대로한 경우
-//		
-//		if( resultCode == getActivity().RESULT_OK && data != null ){
-//			
-////			Detail3Article temp = (Detail3Article) data.getSerializableExtra("modifiedItem");
-//			clickedItem.myGood = data.getIntExtra("myGood", 10);
-//			clickedItem.goodNum = data.getIntExtra("goodNum", 10);
-//			clickedItem.repNum = data.getIntExtra("repNum", 10);
-//			mAdapter.notifyDataSetChanged();
-//			Toast.makeText(getActivity(), "RESULT_OK:"+data.getIntExtra("goodNum", 10)
-//					+"clicked_goodnum:"+clickedItem.goodNum, Toast.LENGTH_SHORT).show();
-//			
-//		} else if(resultCode == getActivity().RESULT_CANCELED) {
-//			Toast.makeText(getActivity(), "RESULT_CANCELED", Toast.LENGTH_SHORT).show();
-//		}
-//		
-//	}
-	
-	
-	public void setLikeDisplay(TabThreeResult item) {
-		final TabThreeResult tempItem = item;
-		
+	}
+
+	public void setLikeDisplay(CommonResult item) {
+		final CommonResult tempItem = item;
 		if (tempItem.myGood == 0 ) {
-			NetworkManager.getInstance().putSdamGood(getActivity(), 
-					String.valueOf(item.num),
-					item.writer,
-					
+			NetworkManager.getInstance().putSdamGood(getActivity(), String.valueOf(item.num), item.writer,
 					new OnResultListener<GoodInfo>() {
 
 						@Override
@@ -333,14 +312,15 @@ public class TabThreeFragment extends PagerFragment {
 							goodInfo = result;
 							if (goodInfo.success == CommonInfo.COMMON_INFO_SUCCESS) {
 								mAdapter.setLikeNum(tempItem); //마이 굿 반대로, 카운트 증가/증감
+								postEvent(tempItem, EventInfo.MODE_UPDATE);
 							} else {
-//								Toast.makeText(getActivity(), "/good onSuccess:0", Toast.LENGTH_SHORT).show();
+								Log.e(TAG, "onSuccess: LIKE error" );
 							}
 						}
 
 						@Override
 						public void onFailure(Request request, int code, Throwable cause) {
-
+							Log.e(TAG, "onFailure: LIKE error" + cause );
 						}
 
 					});
@@ -354,18 +334,63 @@ public class TabThreeFragment extends PagerFragment {
 							goodCancelInfo = result;
 							if (result.success == CommonInfo.COMMON_INFO_SUCCESS) {
 								mAdapter.setLikeNum(tempItem);
+								postEvent(tempItem, EventInfo.MODE_UPDATE);
 							} else {
-//								Toast.makeText( getActivity(), "/goodcancel onSuccess:0" , Toast.LENGTH_SHORT).show();
+								Log.e(TAG, "onSuccess: DISLIKE error" );
 							}
 						}
 
 						@Override
 						public void onFailure(Request request, int code, Throwable cause) {
-
+							Log.e(TAG, "onFailure: DISLIKE error" + cause );
 						}
 					});
 		}
 
 	}// setlikedisplay
-	
+	private void testSSL(){
+		NetworkManager.getInstance().testSSL(getActivity(), new NetworkManager.OnResultListener<String>() {
+			@Override
+			public void onSuccess(Request request, String result) {
+				Log.e(TAG, "onSuccess: testSSL: "+result  );
+			}
+
+			@Override
+			public void onFailure(Request request, int code, Throwable cause) {
+				Log.e(TAG, "onFailure: testSSL: error" );
+			}
+		});
+	}
+
+	@Subscribe
+	public void onEvent(EventInfo eventInfo){
+		Log.e(TAG, "onEvent: "+eventInfo.mode );
+		if(mAdapter == null || mAdapter.getItemCount() < 1) {
+			return;
+		}
+		mAdapter.findOneAndModify(eventInfo.commonResult, eventInfo.mode);
+	}
+
+	private void postEvent(CommonResult commonResult, String mode){
+		EventInfo eventInfo = new EventInfo(commonResult, mode);
+		EventBus.getInstance().post(eventInfo);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		Bundle extraBundle;
+		Log.i(TAG, "onActivityResult: " );
+		if(data != null){
+			Log.e(TAG, "onActivityResult: " +data.toString() );
+		}
+		switch (requestCode) {
+			case RC_DETAIL:
+				if (resultCode == getActivity().RESULT_OK) {
+					extraBundle = data.getExtras();
+					String next =  extraBundle.getString("_NEXT_");
+				}
+				break;
+		}
+	}
 }

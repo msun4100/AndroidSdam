@@ -1,6 +1,8 @@
 package kr.me.sdam.common;
 
-public class CommonTimeStamp {
+import java.io.Serializable;
+
+public class CommonTimeStamp implements Serializable{
 	public String time;
 	public int value;
 }

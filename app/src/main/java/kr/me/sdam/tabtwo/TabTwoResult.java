@@ -2,9 +2,9 @@ package kr.me.sdam.tabtwo;
 
 import java.io.Serializable;
 
-import kr.me.sdam.common.CommonResultItem;
+import kr.me.sdam.common.CommonResult;
 
-public class TabTwoResult extends CommonResultItem implements Serializable{
+public class TabTwoResult extends CommonResult implements Serializable{
 	
 //	public int num;
 //	public int locate;

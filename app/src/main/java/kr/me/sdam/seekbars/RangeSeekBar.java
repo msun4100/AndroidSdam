@@ -138,16 +138,16 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 		numberType = NumberType.fromNumber(absoluteMinValue);
 		IS_MULTI_COLORED = false;
 //		track color ff42baa1
-//		SINGLE_COLOR = Color.argb(0xFF, 0x42, 0xba, 0xa1);
-		SINGLE_COLOR = Color.argb(0xFF, 0x33, 0xb5, 0xe5);
+		SINGLE_COLOR = Color.argb(0xFF, 0x42, 0xba, 0xa1);
+//		SINGLE_COLOR = Color.argb(0xFF, 0x33, 0xb5, 0xe5);
 		LEFT_COLOR = 0;
 		MIDDLE_COLOR = 0;
 		RIGHT_COLOR = 0;
 //		=========thumb selector 
-		thumbImage = BitmapFactory.decodeResource(getResources(),
-				R.drawable.seek_thumb_normal);
-		thumbPressedImage = BitmapFactory.decodeResource(getResources(),
-				R.drawable.seek_thumb_pressed);
+//		thumbImage = BitmapFactory.decodeResource(getResources(), R.drawable.seek_thumb_normal);
+//		thumbPressedImage = BitmapFactory.decodeResource(getResources(), R.drawable.seek_thumb_pressed);
+		thumbImage = BitmapFactory.decodeResource(getResources(), R.drawable.b_main_control_bar_button_off);
+		thumbPressedImage = BitmapFactory.decodeResource(getResources(), R.drawable.b_main_control_bar_button_on);
 //		=========thumb selector 
 		thumbWidth = thumbImage.getWidth();
 		thumbHalfWidth = 0.5f * thumbWidth;
@@ -258,12 +258,9 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 		// Added so we can draw right colors
 		IS_MULTI_COLORED = true;
 		SINGLE_COLOR = 0;
-		LEFT_COLOR = leftColor < 0 ? leftColor : Color.argb(0xFF, 0xFF, 0x00,
-				0x00);
-		MIDDLE_COLOR = middleColor < 0 ? middleColor : Color.argb(0xFF, 0x00,
-				0xFF, 0x00);
-		RIGHT_COLOR = rightColor < 0 ? rightColor : Color.argb(0xFF, 0x00,
-				0x00, 0xFF);
+		LEFT_COLOR = leftColor < 0 ? leftColor : Color.argb(0xFF, 0xFF, 0x00, 0x00);
+		MIDDLE_COLOR = middleColor < 0 ? middleColor : Color.argb(0xFF, 0x00, 0xFF, 0x00);
+		RIGHT_COLOR = rightColor < 0 ? rightColor : Color.argb(0xFF, 0x00, 0x00, 0xFF);
 		thumbImage = BitmapFactory.decodeResource(getResources(),
 				thumbNormal_ResID);
 		thumbPressedImage = BitmapFactory.decodeResource(getResources(),

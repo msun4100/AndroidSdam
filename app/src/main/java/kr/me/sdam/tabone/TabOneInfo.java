@@ -3,6 +3,7 @@ package kr.me.sdam.tabone;
 import java.util.ArrayList;
 
 import kr.me.sdam.common.CommonInfo;
+import kr.me.sdam.common.CommonResult;
 
 
 public class TabOneInfo extends CommonInfo{
@@ -14,6 +15,6 @@ public class TabOneInfo extends CommonInfo{
 //	
 //	public int success;
 //	public String work;
-	public ArrayList<TabOneResult> result;
+	public ArrayList<CommonResult> result;
 
 }

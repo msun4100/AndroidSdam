@@ -28,7 +28,7 @@
 
         <ImageView
             android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:src="@drawable/b_main_view_contents_bg" />
@@ -163,15 +163,6 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/image_page"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
-            android:visibility="gone"
-            android:src="@drawable/b_main_view_2_page_01" />
-
-        <ImageView
             android:id="@+id/image_detail_emoticon"
             android:layout_width="22dp"
             android:layout_height="22dp"
@@ -179,6 +170,15 @@
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
             android:src="@drawable/b_main_view_1_emoticon_01happy" />
+
+        <kr.me.sdam.detail.viewpager.CircleAnimIndicator
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:visibility="gone"
+            android:id="@+id/circleAnimIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
     </FrameLayout>
 
 </LinearLayout>

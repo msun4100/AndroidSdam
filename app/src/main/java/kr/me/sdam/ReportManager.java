@@ -29,7 +29,7 @@ public class ReportManager extends Fragment{
 		}
 		return instance;
 	}
-	private ReportManager(){
+	public ReportManager(){
 		
 	}
 	

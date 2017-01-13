@@ -9,13 +9,14 @@ import kr.me.sdam.NetworkManager.OnResultListener;
 import kr.me.sdam.PropertyManager;
 import kr.me.sdam.R;
 import kr.me.sdam.common.CommonInfo;
-import kr.me.sdam.common.CommonResultItem;
+import kr.me.sdam.common.CommonResult;
 import kr.me.sdam.detail.MyDetailReplyAdapter.OnAdapterItemClickListener;
 import kr.me.sdam.detail.autocomplete.MyAdapter;
 import kr.me.sdam.detail.autocomplete.Person;
 import kr.me.sdam.detail.good.CancelGReplyInfo;
 import kr.me.sdam.detail.good.GoodReplyInfo;
 import kr.me.sdam.detail.reply.ReplyInfo;
+import kr.me.sdam.detail.viewpager.CircleAnimIndicator;
 import kr.me.sdam.detail.viewpager.MyViewPagerAdapter;
 import kr.me.sdam.dialogs.DeleteDialogFragment;
 import kr.me.sdam.dialogs.ReportMenuDialogFragment;
@@ -29,7 +30,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -40,9 +40,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -61,6 +59,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 public class DetailActivity extends ActionBarActivity  {
+	private static final String TAG = DetailActivity.class.getSimpleName();
 	public final static int DETAIL_CONTENT_LENGTH = 110;
 	public final static int DETAIL_CONTENT_MAX_LENGTH = 330;
 	private final static int DETAIL_BUTTON_CANCEL = 0;
@@ -80,6 +79,7 @@ public class DetailActivity extends ActionBarActivity  {
 	// =======List Header=====
 	View headerView;
 	public static ViewPager headerPager;
+	CircleAnimIndicator circleAnimIndicator;
 
 	ImageView headerReportIcon;
 	ImageView headerLocateIcon;
@@ -121,8 +121,7 @@ public class DetailActivity extends ActionBarActivity  {
 	InputMethodManager imm;
 	private int dupNick=-1;
 	private int[] usingNicks = new int[MyDetailReplyView.REPLY_NICKS_COUNT];
-	ImageView headerPageIcon;
-	
+
 	private String[] nicknames; //nickname 리스트
 	private int lastInputLength=0;
 	@Override
@@ -144,7 +143,7 @@ public class DetailActivity extends ActionBarActivity  {
 		responseResult = new Detail2Result();
 		if (intent != null) {
 			responseNum = Integer.parseInt(intent
-					.getStringExtra(CommonResultItem.REQUEST_NUMBER));
+					.getStringExtra(CommonResult.REQUEST_NUMBER));
 		} else {
 			responseNum = 1;
 		}
@@ -154,11 +153,11 @@ public class DetailActivity extends ActionBarActivity  {
 		
 		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		listView = (ListView) findViewById(R.id.list_detail_reply);
-		headerView = LayoutInflater.from(this).inflate(
-				R.layout.item_detail_header_layout, null, false);
+		headerView = LayoutInflater.from(this).inflate(R.layout.item_detail_header_layout, null, false);
 
 		headerPager = (ViewPager) headerView.findViewById(R.id.pager2);
-		
+		circleAnimIndicator = (CircleAnimIndicator) headerView.findViewById(R.id.circleAnimIndicator);
+
 		listView.addHeaderView(headerView, "header", true);
 
 		headerDistanceView = (TextView) headerView .findViewById(R.id.text_detail_distance2);
@@ -185,8 +184,6 @@ public class DetailActivity extends ActionBarActivity  {
 		headerRepIcon = (ImageView) headerView .findViewById(R.id.image_detail_reply);
 		headerEmotionIcon = (ImageView) headerView .findViewById(R.id.image_detail_emoticon);
 
-		headerPageIcon = (ImageView)headerView.findViewById(R.id.image_page);
-		
 		headerGoodIcon = (ImageView) headerView .findViewById(R.id.image_detail_like);
 		frameHeaderLike = (LinearLayout)headerView.findViewById(R.id.frame_detail_like);
 		frameHeaderLike.setOnClickListener(new View.OnClickListener() {
@@ -296,8 +293,8 @@ public class DetailActivity extends ActionBarActivity  {
 		
 		//========네트워크 중 캔슬러블 false주기
 		final ProgressDialog dialog = new ProgressDialog(this);
-//		dialog.setIcon(R.drawable.a_launcher_1_icon_notification);
-//		dialog.setTitle("Progress...");
+		dialog.setIcon(R.drawable.a_launcher_1_icon_512x512);
+		dialog.setTitle("Loading...");
 		dialog.setMessage("상세담을 불러오는 중입니다...");
 		dialog.setCancelable(false);
 		dialog.show();
@@ -351,7 +348,8 @@ public class DetailActivity extends ActionBarActivity  {
 
 					@Override
 					public void onFailure(Request request, int code, Throwable cause) {
-						Toast.makeText(DetailActivity.this, "onFail..", Toast.LENGTH_SHORT).show();
+						Toast.makeText(DetailActivity.this, "서버요청에 실패하였습니다. #", Toast.LENGTH_SHORT).show();
+						Log.e(TAG, "onFailure: "+cause );
 						dialog.setCancelable(true);
 						dialog.dismiss();
 					}
@@ -662,7 +660,8 @@ public class DetailActivity extends ActionBarActivity  {
 			return true;
 		}
 		if (id == android.R.id.home) {
-			finish();
+//			finish();
+			finishAndReturnData();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -725,31 +724,39 @@ public class DetailActivity extends ActionBarActivity  {
 		}
 	}
 
+	private void initIndicator(){
+		// 원사이의 간격
+		circleAnimIndicator.setItemMargin(15);
+		// 애니메이션 속도
+		circleAnimIndicator.setAnimDuration(300);
+		// indecator 생성
+		circleAnimIndicator.createDotPanel(pageCount, R.drawable.b_main_view_2_page_non , R.drawable.b_main_view_2_page_on);
+	}
+
 	private void setHeaderPager() {
-		mViewPagerAdapter = new MyViewPagerAdapter(getSupportFragmentManager(),
-				pageCount);
+		mViewPagerAdapter = new MyViewPagerAdapter(getSupportFragmentManager(), pageCount);
 		headerPager.setAdapter(mViewPagerAdapter);
-		
-		headerPager.setOnPageChangeListener(new OnPageChangeListener() {
-
-			@Override
-			public void onPageSelected(int position) {
-				headerPageIcon.setImageResource( getPageImage(position) );
-			}
-
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-
-			}
-
-			@Override
-			public void onPageScrollStateChanged(int arg0) {
-			}
-		});
+		headerPager.addOnPageChangeListener(mOnPageChangeListener);
+		initIndicator();
 		headerPager.setCurrentItem(0);
 	}
+
+	/**
+	 * ViewPager 전환시 호출되는 메서드
+	 */
+	private ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
+		@Override
+		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+		@Override
+		public void onPageSelected(int position) {
+			circleAnimIndicator.selectDot(position);
+		}
+		@Override
+		public void onPageScrollStateChanged(int state) { }
+	};
+
 	private String writer=null;
-	private void setHeaderStatus(Detail3Article article) {
+	private void setHeaderStatus(CommonResult article) {
 		writer = article.writer;
 		originRepCount = article.repNum; //원래 댓글수 저장
 		if (article.locate == 99999) {
@@ -801,13 +808,8 @@ public class DetailActivity extends ActionBarActivity  {
 		} else {
 			pageCount++;
 		}
-		if(pageCount > 1){
-			if(pageCount == 2){
-				headerPageIcon.setImageResource(R.drawable.b_main_view_2_page_04);
-			} else {
-				headerPageIcon.setImageResource(R.drawable.b_main_view_2_page_01);
-			}
-			headerPageIcon.setVisibility(View.VISIBLE);
+		if(circleAnimIndicator != null && pageCount > 1 ){
+			circleAnimIndicator.setVisibility(View.VISIBLE);
 		}
 		strArr = new String[pageCount];
 		int end = content.length();
@@ -914,33 +916,18 @@ public class DetailActivity extends ActionBarActivity  {
 			
 		} //else if
 	}// setLikeDisplay
-	private int getPageImage(int position){
-		int resId=0;
-		if(pageCount > 2){
-			switch(position){
-			case 0:
-				resId = R.drawable.b_main_view_2_page_01;
-				break;
-			case 1:
-				resId = R.drawable.b_main_view_2_page_02;
-				break;
-			case 2:
-				resId = R.drawable.b_main_view_2_page_03;
-				break;
-				default:
-					break;
-			}	
-		} else {
-			switch(position){
-			case 0:
-				resId = R.drawable.b_main_view_2_page_04;
-				break;
-			case 1:
-				resId = R.drawable.b_main_view_2_page_05;
-				break;
-			}
+
+	private void finishAndReturnData(){
+		if(responseResult.article != null){
+			Intent intent = new Intent();
+			intent.putExtra("_OBJ_", responseResult.article);
+			setResult(RESULT_OK, intent);
 		}
-		
-		return resId;
+		finish();
+	}
+	@Override
+	public void onBackPressed() {
+		finishAndReturnData();
+		super.onBackPressed();
 	}
 }

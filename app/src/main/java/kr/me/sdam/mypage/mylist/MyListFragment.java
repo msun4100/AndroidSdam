@@ -1,5 +1,36 @@
 package kr.me.sdam.mypage.mylist;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.squareup.otto.Subscribe;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,11 +42,13 @@ import kr.me.sdam.NetworkManager.OnResultListener;
 import kr.me.sdam.PropertyManager;
 import kr.me.sdam.R;
 import kr.me.sdam.common.CommonInfo;
-import kr.me.sdam.common.CommonResultItem;
+import kr.me.sdam.common.CommonResult;
+import kr.me.sdam.common.CommonResultAdapter;
+import kr.me.sdam.common.PreLoadLayoutManager;
+import kr.me.sdam.common.event.EventBus;
+import kr.me.sdam.common.event.EventInfo;
 import kr.me.sdam.detail.DetailActivity;
 import kr.me.sdam.dialogs.DeleteDialogFragment;
-import kr.me.sdam.dialogs.MyPageMenuDialogFragment;
-import kr.me.sdam.dialogs.WaitingDialogFragment;
 import kr.me.sdam.good.GoodCancelInfo;
 import kr.me.sdam.good.GoodInfo;
 import kr.me.sdam.mypage.MypageActivity;
@@ -28,44 +61,11 @@ import kr.me.sdam.mypage.calendar.CalendarManager.NoComparableObjectException;
 import kr.me.sdam.mypage.calendar.ItemData;
 import kr.me.sdam.mypage.calendar.MyCalendarInfo;
 import kr.me.sdam.mypage.calendar.MyCalendarResult;
-import kr.me.sdam.mypage.mylist.MyListAdapter.OnAdapterItemClickListener;
-import kr.me.sdam.tabthree.TabThreeInfo;
 import okhttp3.Request;
 
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 public class MyListFragment extends PagerFragment{
+	private static final String TAG = MyListFragment.class.getSimpleName();
+
 	Tracker t;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,24 +75,18 @@ public class MyListFragment extends PagerFragment{
 		t.setScreenName("MyListFragment");
 		t.send(new HitBuilders.AppViewBuilder().build());
 	}
-	@Override
-	public void onStart() {
-		super.onStart();
-		GoogleAnalytics.getInstance(getActivity()).reportActivityStart (getActivity());
-	}
-	@Override
-	public void onStop() {
-		super.onStop();
-		GoogleAnalytics.getInstance(getActivity()).reportActivityStop (getActivity());
-	}
-
-	Handler mHandler = new Handler();
-	long startTime;
-	
 	ActionBar actionBar;
-	ListView listView;
+
+	public static final int RC_DETAIL = 105;
+
+	RecyclerView recyclerView;
 	MyListAdapter mAdapter;
-	
+	PreLoadLayoutManager layoutManager;
+	SwipeRefreshLayout refreshLayout;
+	boolean isLast = false;
+	Handler mHandler = new Handler(Looper.getMainLooper());
+
+
 	ImageView[] categories = new ImageView[BgImage.BG_CATEGORY_SIZE];
 	ImageView allIcon;
 	ImageView e1Icon, e2Icon, e3Icon, e4Icon, e5Icon,e6Icon,e7Icon,e8Icon,e9Icon,e10Icon;
@@ -118,19 +112,14 @@ public class MyListFragment extends PagerFragment{
 	String fullDate="";
 	String days="";
 	String firstDay="01";
-	String myDate = "";
-	String myDateDisplay ="";
 	
 	ArrayList<MyCalendarResult> myCalResult;
 //	==============
 	boolean usingCalendar = true; //캘린더일때와 날짜 눌러서 리스트 볼때 구분.
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		view = inflater.inflate(R.layout.fragment_my_list, container, false);
 
-		
 		initCategories();
 		bv = (View)view.findViewById(R.id.behindScrollView);
 		behindDateView = (TextView)view.findViewById(R.id.text_behind_date);
@@ -138,110 +127,115 @@ public class MyListFragment extends PagerFragment{
 		
 		scrollView = (View)view.findViewById(R.id.horizontalScrollView1);
 		calendarView = (View)view.findViewById(R.id.my_list_calendar);
-		
-		listView = (ListView) view.findViewById(R.id.list_mywriting);
-		mAdapter = new MyListAdapter(getActivity());
-		listView.setAdapter(mAdapter);
-		mAdapter.setOnAdapterItemClickListener(new OnAdapterItemClickListener() {
 
+		//===================================
+		refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
+		refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
+		refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
 			@Override
-			public void onAdapterItemClick(MyListAdapter adapter, View view,
-					MyList2Result item, int type) {
-				switch (type) {
-				case CommonResultItem.TYPE_INVALID:
-					break;
-				case CommonResultItem.TYPE_DISTANCE:
-					break;
-				case CommonResultItem.TYPE_REPORT:
-					MyList2Result clickedItem = item;
-					if(clickedItem.writer.equals( PropertyManager.getInstance().getUserId() )){
-//						if(clickedItem.locked == 1){
-//							clickedItem.locked =0;
-//						} else {
-//							clickedItem.locked =1;
-//						}
-						Bundle b = new Bundle();
-						b.putSerializable("mypageItem", clickedItem);
-						b.putSerializable("mypageAdapter", mAdapter);
-						b.putInt("mypageNum", clickedItem.num);
-						b.putInt("mypageType", 5); // 0==댓글, 1,2,3,4==탭게시물
-//						b.putString("mypageLockedText", value);
-						MyPageMenuDialogFragment f = new MyPageMenuDialogFragment();
-						f.setArguments(b);
-						f.show(getFragmentManager(), "mypagedialog");
+			public void onRefresh() {
+				mHandler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						start = 1;
+						isEmotionSearching = false;
+						initData();	//getSdamMyList()
 					}
-					break;
-				case CommonResultItem.TYPE_REPLY:
-					break;
-				case CommonResultItem.TYPE_LIKE:
-					setLikeDisplay(item);
-					break;
-					default:
-						Toast.makeText(getActivity(), "INVALID TYPE", Toast.LENGTH_SHORT).show();
+				}, 1000);
+			}
+		});
+		recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
+		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+				super.onScrollStateChanged(recyclerView, newState);
+				if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
+					if(isEmotionSearching == true){
+						getMoreEmotion(emotion);
+					} else {
+						getMoreMyList();
+					}
+
+
+				}
+			}
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+				super.onScrolled(recyclerView, dx, dy);
+				int totalItemCount = mAdapter.getItemCount();
+				int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+				if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
+					isLast = true;
+				} else {
+					isLast = false;
+				}
+				if (dy > 0) { // Scroll Down
+					((MypageActivity) getActivity()).setMenuInvisible();
+				} else if (dy < 0) { // Scroll Up
+					((MypageActivity) getActivity()).setMenuVisible();
+				}
+			}
+		});
+
+		mAdapter = new MyListAdapter();
+		mAdapter.setOnItemClickListener(new kr.me.sdam.common.OnItemClickListener() {
+			@Override
+			public void onItemClick(View view, int position) {
+				Log.e(TAG, "onItemClick: " );
+				CommonResult item = mAdapter.getItem(position);
+				if(item.num != -1){	// If it's not a dummy data, shows details
+					Intent intent = new Intent(getActivity(), DetailActivity.class);
+					intent.putExtra(CommonResult.REQUEST_NUMBER, ""+item.num);
+					getActivity().startActivityForResult(intent, RC_DETAIL);
+				}
+			}
+		});
+		mAdapter.setOnAdapterItemClickListener(new CommonResultAdapter.OnAdapterItemClickListener() {
+			@Override
+			public void onAdapterItemClick(CommonResultAdapter adapter, View view, int position, CommonResult item, int type) {
+				switch (type) {
+					case CommonResult.TYPE_INVALID:
+						Log.e(TAG, "onAdapterItemClick: INVALID TYPE" );
+						break;
+					case CommonResult.TYPE_DISTANCE:
+						break;
+					case CommonResult.TYPE_REPORT:
+						break;
+					case CommonResult.TYPE_REPLY:
+						break;
+					case CommonResult.TYPE_LIKE:
+						setLikeDisplay(item);
 						break;
 				}
 			}
 		});
-		
-		listView.setOnItemLongClickListener(new OnItemLongClickListener() {
-
+		mAdapter.setOnItemLongClickListener(new kr.me.sdam.common.OnItemLongClickListener() {
 			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				MyList2Result longClickedItem = (MyList2Result)listView.getItemAtPosition(position);
-//				if(longClickedItem.writer == PropertyManager.getInstance().getUserId()){
+			public void onItemLongClick(View view, int position) {
+				CommonResult longClickedItem = mAdapter.getItem(position);
+				Log.e(TAG, "onItemLongClick: " + longClickedItem);
 				if(longClickedItem.writer.equals( PropertyManager.getInstance().getUserId() )){
 					Bundle b = new Bundle();
 					b.putSerializable("deletedItem", longClickedItem);
 					b.putSerializable("deletedadapter", mAdapter);
 					b.putInt("responseNum", longClickedItem.num);
-					b.putInt("activityType", 5); // 0==댓글, 1,2,3,4==탭게시물
+					b.putInt("activityType", 5); // 0==댓글, 1,2,3==탭게시물
 					DeleteDialogFragment f = new DeleteDialogFragment();
 					f.setArguments(b);
-					f.show(getActivity().getSupportFragmentManager(), "deletereplydialog");	
+					f.show(getActivity().getSupportFragmentManager(), "deletereplydialog");
 				}
-				
-				
-				return true;
 			}
 		});
-		listView.setOnScrollListener(new OnScrollListener(){
-			@Override
-			public void onScroll(AbsListView view, int firstVisibleItem,
-					int visibleItemCount, int totalItemCount) {
-				int currentPosition = view.getFirstVisiblePosition();
-				if( currentPosition > lastPosition){
-					((MypageActivity) getActivity()).setMenuInvisibility();
-				}
-				if(currentPosition < lastPosition){
-					((MypageActivity) getActivity()).setMenuVisibility();
-				}
-				lastPosition=currentPosition;
-			}
-			@Override
-			public void onScrollStateChanged(AbsListView view, int scrollState) {
-			}
-			
-		});
-		listView.setOnItemClickListener(new OnItemClickListener() {
+		recyclerView.setAdapter(mAdapter);
+//		layoutManager = new LinearLayoutManager(getActivity());
+		layoutManager = new PreLoadLayoutManager(getActivity());
+//        layoutManager.scrollToPosition(5);
+//        layoutManager.smoothScrollToPosition(recyclerView, null, 5);
+		recyclerView.setLayoutManager(layoutManager);
+//        recyclerView.addItemDecoration(new BoardDecoration(getActivity()));
 
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				Object data = listView.getItemAtPosition(position);
-				MyList2Result item = (MyList2Result) data;
-				Intent intent = new Intent(getActivity(), DetailActivity.class);
-				intent.putExtra(CommonResultItem.REQUEST_NUMBER, "" + item.num);
-				// Bundle b = new Bundle();
-				// b.putString("backgroundId", ""+item.backgroundId);
-				// b.putString("content", ""+item.content);
-				// intent.putExtra(TAB_ONE_ITEM, item);
-				// // intent.putExtras(new Bundle());
-//				startActivityForResult(intent, 0);
-				startActivity(intent);
-			}
-		});
-		
+		initData();
+
 //		=calendar========================================
 		
 		mItemdata.add(new ItemData(2014,2,01,"A",1));	//감정 이모티콘== 숫자 변환
@@ -266,15 +260,7 @@ public class MyListFragment extends PagerFragment{
 				nextDate+=""+data.year;
 				nextDate+=getMonthString(data.month);
 				nextDate+=firstDay;
-				
-				myDate="";
-				myDate+=""+data.year;
-				myDate+=getMonthString(data.month);
-				
-				myDateDisplay="";
-				myDateDisplay+=""+data.year+". ";
-				myDateDisplay+=getMonthString(data.month)+". ";
-				
+
 				getSdamCalendar(nextDate);
 			}
 		});
@@ -295,14 +281,6 @@ public class MyListFragment extends PagerFragment{
 				lastDate+=""+data.year;
 				lastDate+=getMonthString(data.month);
 				lastDate+=firstDay;
-				
-				myDate="";
-				myDate+=""+data.year;
-				myDate+=getMonthString(data.month);
-				
-				myDateDisplay="";
-				myDateDisplay+=""+data.year+". ";
-				myDateDisplay+=getMonthString(data.month)+". ";
 				
 				getSdamCalendar(lastDate);
 			}
@@ -326,45 +304,45 @@ public class MyListFragment extends PagerFragment{
 		fullDate+=getMonthString(data.month);
 		fullDate+=firstDay;
 		days = ""+data.days.size();
-		
-		myDate="";
-		myDate+=""+data.year;
-		myDate+=getMonthString(data.month);
-		
-		myDateDisplay="";
-		myDateDisplay+=""+data.year+". ";
-		myDateDisplay+=getMonthString(data.month)+". ";
 //		====onSuccess라 치고====
 		
 		gridView.setAdapter(mCalendarAdapter);
-
 		gridView.setOnItemClickListener(new OnItemClickListener() {
-
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				final CalendarItem item = (CalendarItem)mCalendarAdapter.getItem(position);
-				
 				bv.setVisibility(View.VISIBLE);
 				scrollView.setVisibility(View.GONE);
 				behindEmotionIcon.setVisibility(View.GONE); //나왔다 사라지는 잔버그 수정
 				behindDateView.setText(""); //나왔다 사라지는 잔버그 수정
-				NetworkManager.getInstance().getSdamMyDay(getActivity(), 
-						myDate + item.dayOfMonth,
-						new OnResultListener<MyList1Info>() {
+				final String dayOfMonth;
+				if(item.dayOfMonth < 10){
+					dayOfMonth = "0"+item.dayOfMonth;
+				} else {
+					dayOfMonth = ""+item.dayOfMonth;
+				}
+				String str = "";
+				str += item.year;
+				str += getMonthString(item.month);
+				str += dayOfMonth;
 
+				final String myDateDisplay = item.year+"." + getMonthString(item.month) + "." + dayOfMonth;
+//				Log.e(TAG, "onItemClick: "+item.inMonth );
+				if(item.emotionIcon == 99999)
+					return;
+				NetworkManager.getInstance().getSdamMyDay(getActivity(), str,
+						new OnResultListener<MyList1Info>() {
 							@Override
 							public void onSuccess(Request request, MyList1Info result) {
 								if(result.success == CommonInfo.COMMON_INFO_SUCCESS){
 									if(result.result != null) {
 										calendarView.setVisibility(View.GONE);
-										listView.setVisibility(View.VISIBLE);
+										refreshLayout.setVisibility(View.VISIBLE);
 										behindEmotionIcon.setVisibility(View.VISIBLE);
-										behindDateView.setText(myDateDisplay + item.dayOfMonth);
-										listView.setAdapter(mAdapter);
+										behindDateView.setText(myDateDisplay);
 										mAdapter.clear();
-										mAdapter.setTotalCount(1000);
-										for(MyList2Result r : result.result){
+										mAdapter.setTotalCount(100000);
+										for(CommonResult r : result.result){
 											mAdapter.add(r);
 										}
 										behindEmotionIcon.setImageResource(getEmotionIcon(item.emotionIcon));
@@ -377,11 +355,9 @@ public class MyListFragment extends PagerFragment{
 								}
 							}
 
-
-
 							@Override
 							public void onFailure(Request request, int code, Throwable cause) {
-								listView.setVisibility(View.GONE);
+								refreshLayout.setVisibility(View.GONE);
 								calendarView.setVisibility(View.VISIBLE);
 							}
 						});
@@ -389,9 +365,9 @@ public class MyListFragment extends PagerFragment{
 		});
 
 		getSdamCalendar(fullDate);
+		Log.e(TAG, "onCreateView: fullDate: "+fullDate );
 //		getSdamMyList();
 //		========================================
-
 		return view;
 	}
 
@@ -405,6 +381,14 @@ public class MyListFragment extends PagerFragment{
 								gridView.setAdapter(mCalendarAdapter);
 								mCalendarAdapter.clear();
 								int dateIndex = 0;
+								Log.e(TAG, "onSuccess: "+result.result );
+//								try{
+//									CalendarManager.getInstance().setDataObject(result.result);
+//									mCalendarAdapter.notifyDataSetChanged();
+//								} catch(NoComparableObjectException e){
+//									e.printStackTrace();
+//								}
+
 								for(MyCalendarResult r : result.result){
 									dateIndex = Integer.parseInt(r.date);
 									for(int i = 0; i < 31; i++){
@@ -415,17 +399,12 @@ public class MyListFragment extends PagerFragment{
 											break;
 										}
 									}
-//									CalendarItem tempItem = (CalendarItem)mCalendarAdapter .getItem( (Integer.parseInt(r.date) - 1) );
-//									tempItem.emotionIcon = r.emotion;
-//									mCalendarAdapter.notifyDataSetChanged();
 								}
 							} else {
-//								Toast.makeText(getActivity(), "/mycal : result == 0", Toast.LENGTH_SHORT).show();
+								Log.e(TAG, "onSuccess: result,result == null" );
 							}
 						} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
-//							Toast.makeText(getActivity(), "/mycal : success == 0", Toast.LENGTH_SHORT).show();
-						} else {
-//							Toast.makeText(getActivity(), "/mycal : Unexpected error...", Toast.LENGTH_SHORT).show();
+							Log.e(TAG, "onSuccess: result,result == 0" );
 						}
 					}
 
@@ -476,24 +455,8 @@ public class MyListFragment extends PagerFragment{
 		e10Icon = (ImageView)view.findViewById(R.id.mylist_10);
 		e10Icon.setOnClickListener(categoryListener);
 	}
-	private void initData() {
-		List<MyList2Result> items = MyListDataManager.getInstance()
-				.getMyListResultList();
-		mAdapter.clear();
-		for (MyList2Result id : items) {
-			mAdapter.add(id);
-		}
-	}
-	
-	private void initDummyData(int emotion) {
-		List<MyList2Result> items = MyListDataManager.getInstance()
-				.getMyListDummyList();
-		mAdapter.clear();
-		for (MyList2Result id : items) {
-			id.emotion=emotion;
-			mAdapter.add(id);
-		}
-	}
+
+
 	public ActionBar getActionBar() {
 		if (actionBar == null) {
 			actionBar = ((AppCompatActivity) getActivity()) .getSupportActionBar();
@@ -501,9 +464,105 @@ public class MyListFragment extends PagerFragment{
 		return actionBar;
 	}
 
-	
-	private int myListRequestPage = 1;
-	private int currentMyListRequestPage = 1;
+	private void initData(){
+		start = 1;
+		getSdamMyList();
+	}
+
+	private void initDummyData(int emotion) {
+		List<MyList2Result> items = MyListDataManager.getInstance().getMyListDummyList();
+		mAdapter.clear();
+		for (CommonResult id : items) {
+			id.emotion=emotion;
+			mAdapter.add(id);
+		}
+	}
+
+
+	boolean isMoreData = true;
+	ProgressDialog dialog = null;
+	private static final int DISPLAY_NUM = 10;
+	private int start=1;
+	private String reqDate = null;
+
+	boolean isEmotionSearching = false;
+	int emotion = 0;
+
+	private void getMoreEmotion(int emotion){
+		Log.e(TAG, "getMoreEmotion: page: " +start);
+		if (isMoreData == false) {
+			Log.e(TAG, "getMoreEmotion: has no more items" );
+			return;
+		}
+		if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount() ) {
+			NetworkManager.getInstance().getSdamMyEmotion(getActivity(), ""+emotion, start, new OnResultListener<MyList1Info>() {
+
+				@Override
+				public void onSuccess(Request request, MyList1Info result) {
+					if(result.success == CommonInfo.COMMON_INFO_SUCCESS){
+						if(result.result != null) {
+							mAdapter.addAll(result.result);
+							start++;
+						} else if (result.result == null) {
+							isMoreData = false;
+							Log.e(TAG, "onSuccess: result.result == null"  );
+						}
+					} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
+						Log.e(TAG, "onSuccess: result.result == 0"  );
+					}
+				}
+
+				@Override
+				public void onFailure(Request request, int code, Throwable cause) {
+					Toast.makeText(getActivity(), "서버에 연결할 수 없습니다. #"+code, Toast.LENGTH_SHORT).show();
+				}
+
+			});
+		}
+	}
+
+	private void getMoreMyList(){
+		Log.e(TAG, "getMoreMyList: page: " +start);
+		if (isMoreData == false) {
+			Log.e(TAG, "getMoreMyList: has no more items" );
+			return;
+		}
+		if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount() ) {
+			NetworkManager.getInstance().getSdamMyList(getActivity(), start,
+					new OnResultListener<MyList1Info>() {
+
+						@Override
+						public void onSuccess(Request request, MyList1Info result) {
+							if(result.success == CommonInfo.COMMON_INFO_SUCCESS){
+								if(result.result != null) {
+									mAdapter.setTotalCount(1000000);
+									mAdapter.addAll(result.result);
+									start++;
+								} else if (result.result == null) {
+									isMoreData = false;
+									Log.e(TAG, "onSuccess: result.result == null" );
+								}
+
+							} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
+								Log.e(TAG, "onSuccess: result.result == 0" );
+							}
+							refreshLayout.setRefreshing(false);
+							dialog.dismiss();
+
+						}
+
+						@Override
+						public void onFailure(Request request, int code, Throwable cause) {
+							Toast.makeText(getActivity(), "서버에 연결할 수 없습니다.#"+code, Toast.LENGTH_SHORT).show();
+							refreshLayout.setRefreshing(false);
+							dialog.dismiss();
+						}
+					});
+			dialog = new ProgressDialog(getActivity());
+			dialog.setMessage("데이터 로딩중..");
+			dialog.show();
+		}
+	}
 
 	@Override
 	public void onResume() {
@@ -515,7 +574,7 @@ public class MyListFragment extends PagerFragment{
 		actionBar.setBackgroundDrawable(d);
 		actionBar.setTitle("");
 //		===========================
-		getSdamMyList();
+//		getSdamMyList();
 	}
 
 	@Override
@@ -540,20 +599,20 @@ public class MyListFragment extends PagerFragment{
 			v.setVisibility(View.GONE);
 			
 			scrollView.setVisibility(View.VISIBLE);
-			listView.setVisibility(View.VISIBLE);
+			refreshLayout.setVisibility(View.VISIBLE);
 
 			((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
-			((MypageActivity)getActivity()).setMenuVisibility();
+			((MypageActivity)getActivity()).setMenuVisible();
 			return;
 		} else if(v.getVisibility() == View.GONE){
 			imageCal.setImageResource(R.drawable.f_my_selectbar_button_actionbar_list);
 			menuCalendar.setActionView(imageCal);
 			
 			scrollView.setVisibility(View.GONE);
-			listView.setVisibility(View.GONE);
+			refreshLayout.setVisibility(View.GONE);
 			v.setVisibility(View.VISIBLE);
 			((MypageActivity)getActivity()).getWriteView().setVisibility(View.GONE);
-			((MypageActivity)getActivity()).setMenuInvisibility();
+			((MypageActivity)getActivity()).setMenuInvisible();
 			return;
 		} else {
 			Toast.makeText(getActivity(), "Visiblility error...", Toast.LENGTH_SHORT).show();
@@ -563,16 +622,15 @@ public class MyListFragment extends PagerFragment{
 	
 	
 	private OnClickListener categoryListener = new OnClickListener() {
-		
 		@Override
 		public void onClick(View v) {
+			start = 1;	//어떤 요청을 하든 start = 1
 			switch(v.getId()){
-			
 			case R.id.mylist_all:
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.VISIBLE);
 				calendarView.setVisibility(View.GONE);
-				listView.setVisibility(View.VISIBLE);
+				refreshLayout.setVisibility(View.VISIBLE);
 				((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
 				allIcon.setImageResource(R.drawable.f_my_selectbar_emoticon_00all_on);
 				e1Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_01_off);
@@ -585,13 +643,14 @@ public class MyListFragment extends PagerFragment{
 				e8Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_08_off);
 				e9Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_09_off);
 				e10Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_10_off);
+				isEmotionSearching = false;
 				getSdamMyList();
 				break;
 			case R.id.mylist_1:
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.VISIBLE);
 				calendarView.setVisibility(View.GONE);
-				listView.setVisibility(View.VISIBLE);
+				refreshLayout.setVisibility(View.VISIBLE);
 				((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
 //				==================
 				allIcon.setImageResource(R.drawable.f_my_selectbar_emoticon_00all_off);
@@ -605,13 +664,15 @@ public class MyListFragment extends PagerFragment{
 				e8Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_08_off);
 				e9Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_09_off);
 				e10Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_10_off);
-				getSdamMyEmotion(0, 1);
+				isEmotionSearching = true;
+				emotion = 0;
+				getSdamMyEmotion(0);
 				break;
 			case R.id.mylist_2:
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.VISIBLE);
 				calendarView.setVisibility(View.GONE);
-				listView.setVisibility(View.VISIBLE);
+				refreshLayout.setVisibility(View.VISIBLE);
 				((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
 				allIcon.setImageResource(R.drawable.f_my_selectbar_emoticon_00all_off);
 				e1Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_01_off);
@@ -624,13 +685,15 @@ public class MyListFragment extends PagerFragment{
 				e8Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_08_off);
 				e9Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_09_off);
 				e10Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_10_off);
-				getSdamMyEmotion(1, 1);
+				isEmotionSearching = true;
+				emotion = 1;
+				getSdamMyEmotion(1);
 				break;
 			case R.id.mylist_3:
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.VISIBLE);
 				calendarView.setVisibility(View.GONE);
-				listView.setVisibility(View.VISIBLE);
+				refreshLayout.setVisibility(View.VISIBLE);
 				((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
 				allIcon.setImageResource(R.drawable.f_my_selectbar_emoticon_00all_off);
 				e1Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_01_off);
@@ -643,13 +706,15 @@ public class MyListFragment extends PagerFragment{
 				e8Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_08_off);
 				e9Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_09_off);
 				e10Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_10_off);
-				getSdamMyEmotion(2, 1);
+				isEmotionSearching = true;
+				emotion = 2;
+				getSdamMyEmotion(2);
 				break;
 			case R.id.mylist_4:
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.VISIBLE);
 				calendarView.setVisibility(View.GONE);
-				listView.setVisibility(View.VISIBLE);
+				refreshLayout.setVisibility(View.VISIBLE);
 				((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
 				allIcon.setImageResource(R.drawable.f_my_selectbar_emoticon_00all_off);
 				e1Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_01_off);
@@ -662,13 +727,15 @@ public class MyListFragment extends PagerFragment{
 				e8Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_08_off);
 				e9Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_09_off);
 				e10Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_10_off);
-				getSdamMyEmotion(3, 1);
+				isEmotionSearching = true;
+				emotion = 3;
+				getSdamMyEmotion(3);
 				break;
 			case R.id.mylist_5:
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.VISIBLE);
 				calendarView.setVisibility(View.GONE);
-				listView.setVisibility(View.VISIBLE);
+				refreshLayout.setVisibility(View.VISIBLE);
 				((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
 				allIcon.setImageResource(R.drawable.f_my_selectbar_emoticon_00all_off);
 				e1Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_01_off);
@@ -681,13 +748,15 @@ public class MyListFragment extends PagerFragment{
 				e8Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_08_off);
 				e9Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_09_off);
 				e10Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_10_off);
-				getSdamMyEmotion(4, 1);
+				isEmotionSearching = true;
+				emotion = 4;
+				getSdamMyEmotion(4);
 				break;
 			case R.id.mylist_6:
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.VISIBLE);
 				calendarView.setVisibility(View.GONE);
-				listView.setVisibility(View.VISIBLE);
+				refreshLayout.setVisibility(View.VISIBLE);
 				((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
 				allIcon.setImageResource(R.drawable.f_my_selectbar_emoticon_00all_off);
 				e1Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_01_off);
@@ -700,13 +769,15 @@ public class MyListFragment extends PagerFragment{
 				e8Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_08_off);
 				e9Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_09_off);
 				e10Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_10_off);
-				getSdamMyEmotion(5, 1);
+				isEmotionSearching = true;
+				emotion = 5;
+				getSdamMyEmotion(5);
 				break;
 			case R.id.mylist_7:
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.VISIBLE);
 				calendarView.setVisibility(View.GONE);
-				listView.setVisibility(View.VISIBLE);
+				refreshLayout.setVisibility(View.VISIBLE);
 				((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
 				allIcon.setImageResource(R.drawable.f_my_selectbar_emoticon_00all_off);
 				e1Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_01_off);
@@ -719,13 +790,15 @@ public class MyListFragment extends PagerFragment{
 				e8Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_08_off);
 				e9Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_09_off);
 				e10Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_10_off);
-				getSdamMyEmotion(6, 1);
+				isEmotionSearching = true;
+				emotion = 6;
+				getSdamMyEmotion(6);
 				break;
 			case R.id.mylist_8:
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.VISIBLE);
 				calendarView.setVisibility(View.GONE);
-				listView.setVisibility(View.VISIBLE);
+				refreshLayout.setVisibility(View.VISIBLE);
 				((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
 				allIcon.setImageResource(R.drawable.f_my_selectbar_emoticon_00all_off);
 				e1Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_01_off);
@@ -738,13 +811,15 @@ public class MyListFragment extends PagerFragment{
 				e8Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_08_on);
 				e9Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_09_off);
 				e10Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_10_off);
-				getSdamMyEmotion(7, 1);
+				isEmotionSearching = true;
+				emotion = 7;
+				getSdamMyEmotion(7);
 				break;
 			case R.id.mylist_9:
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.VISIBLE);
 				calendarView.setVisibility(View.GONE);
-				listView.setVisibility(View.VISIBLE);
+				refreshLayout.setVisibility(View.VISIBLE);
 				((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
 				allIcon.setImageResource(R.drawable.f_my_selectbar_emoticon_00all_off);
 				e1Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_01_off);
@@ -757,13 +832,15 @@ public class MyListFragment extends PagerFragment{
 				e8Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_08_off);
 				e9Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_09_on);
 				e10Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_10_off);
-				getSdamMyEmotion(8, 1);
+				isEmotionSearching = true;
+				emotion = 8;
+				getSdamMyEmotion(8);
 				break;
 			case R.id.mylist_10:
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.VISIBLE);
 				calendarView.setVisibility(View.GONE);
-				listView.setVisibility(View.VISIBLE);
+				refreshLayout.setVisibility(View.VISIBLE);
 				((MypageActivity)getActivity()).getWriteView().setVisibility(View.VISIBLE);
 				allIcon.setImageResource(R.drawable.f_my_selectbar_emoticon_00all_off);
 				e1Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_01_off);
@@ -776,7 +853,9 @@ public class MyListFragment extends PagerFragment{
 				e8Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_08_off);
 				e9Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_09_off);
 				e10Icon.setImageResource(R.drawable.f_my_selectbar_emoticon_10_on);
-				getSdamMyEmotion(9, 1);
+				isEmotionSearching = true;
+				emotion = 9;
+				getSdamMyEmotion(9);
 				break;
 				default:
 					break;
@@ -804,14 +883,12 @@ public class MyListFragment extends PagerFragment{
 			public void onClick(View v) {
 				bv.setVisibility(View.GONE);
 				setCalendarVisibility(calendarView);
-				
 				usingCalendar = true;
 				t.send(new HitBuilders.EventBuilder().setCategory("MyListFragment").setAction("Pressed Menu").setLabel("Calendar Click").build());
 				
 			}
 		});
 		menuCalendar.setActionView(imageCal);
-		
 //		=============
 		menuSetting = menu.findItem(R.id.my_setting);
 		imageSet = new ImageView(getActivity());
@@ -844,7 +921,7 @@ public class MyListFragment extends PagerFragment{
 			if(usingCalendar == false){
 				bv.setVisibility(View.GONE);
 				scrollView.setVisibility(View.GONE);
-				listView.setVisibility(View.GONE);
+				refreshLayout.setVisibility(View.GONE);
 				calendarView.setVisibility(View.VISIBLE);
 				usingCalendar = true;
 			}  
@@ -867,93 +944,65 @@ public class MyListFragment extends PagerFragment{
 		return str;
 	}
 	
-	public void connectGetSdamCalendar(){
-		
-	}
-	WaitingDialogFragment wf;
 	public void getSdamMyList(){
-		wf = new WaitingDialogFragment();
-		FragmentManager fm = getActivity().getSupportFragmentManager();
-		FragmentTransaction ft = fm.beginTransaction();
-		ft.addToBackStack(null);
-		wf.setCancelable(false); // 딴영역 눌러도 안닫히게 하는 옵션
-		wf.show(ft, "dialog");
+		isEmotionSearching = false;
 		NetworkManager.getInstance().getSdamMyList(getActivity(),
-				myListRequestPage, 
+				start,
 				new OnResultListener<MyList1Info>() {
 					
 					@Override
 					public void onSuccess(Request request, MyList1Info result) {
 						if(result.success == CommonInfo.COMMON_INFO_SUCCESS){
-//							Toast.makeText(getActivity(), "/mylist result.success 1\nwork:"+result.work, Toast.LENGTH_SHORT).show();
 							if(result.result != null) {
-								listView.setAdapter(mAdapter);
 								mAdapter.clear();
-								mAdapter.setTotalCount(100);
-								for(MyList2Result r : result.result){
-									mAdapter.add(r);
-								}
-								if(lastPosition != 0){
-									//새로고침한 경우 리스트 자리 맞추기 위해
-									if(currentMyListRequestPage != myListRequestPage && (lastPosition<20) ){
-										lastPosition=0;
-										listView.setSelection(lastPosition);
-									} else {//디폴트 리쥼 리스트 자리 맞추기
-										listView.setSelection(lastPosition%MainActivity.COMMON_LIST_ITEM_SIZE);	
-									}
-									currentMyListRequestPage = myListRequestPage;
-								}
+								mAdapter.setTotalCount(1000000);
+								mAdapter.addAll(result.result);
+								start++;
+								isMoreData = true;
 							} else if (result.result == null) {
-								initDummyData(0);
+								Log.e(TAG, "onSuccess: result.result == null" );
 							}
 							
 						} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
-							Toast.makeText(getActivity(), "서버에 연결할 수 없습니다."+result.work, Toast.LENGTH_SHORT).show();
-						} else {
-							Toast.makeText(getActivity(), "서버에 연결할 수 없습니다."+result.work, Toast.LENGTH_SHORT).show();
+							Log.e(TAG, "onSuccess: result.result == 0" );
 						}
-						if(wf!=null){
-							if(wf.isVisible()){
-								wf.dismiss();
-							}
-						}
-						
+						refreshLayout.setRefreshing(false);
+						dialog.dismiss();
 					}
 
 					@Override
 					public void onFailure(Request request, int code, Throwable cause) {
 						Toast.makeText(getActivity(), "서버에 연결할 수 없습니다.#"+code, Toast.LENGTH_SHORT).show();
-						if(wf!=null){
-							if(wf.isVisible()){
-								wf.dismiss();
-							}
-						}
+						refreshLayout.setRefreshing(false);
+						dialog.dismiss();
 					}
 				});
+		dialog = new ProgressDialog(getActivity());
+		dialog.setMessage("데이터 로딩중..");
+		dialog.show();
 	}//getSdamMyList()
 	
-	public void getSdamMyEmotion(final int emotion, int requestPageNum){
-		NetworkManager.getInstance().getSdamMyEmotion(getActivity(), ""+emotion, requestPageNum, new OnResultListener<MyList1Info>() {
+	public void getSdamMyEmotion(final int emotion){
+		NetworkManager.getInstance().getSdamMyEmotion(getActivity(), ""+emotion, start, new OnResultListener<MyList1Info>() {
 			
 			@Override
 			public void onSuccess(Request request, MyList1Info result) {
 				if(result.success == CommonInfo.COMMON_INFO_SUCCESS){
 					if(result.result != null) {
-						listView.setAdapter(mAdapter);
 						mAdapter.clear();
-						mAdapter.setTotalCount(100);
-						for(MyList2Result r : result.result){
-							mAdapter.add(r);
-						}
-//						myListRequestPage++;
+						mAdapter.setTotalCount(1000000);
+						mAdapter.addAll(result.result);
+						start++;
+///////////////////////////////////////////////////////////////////////
+ 						isMoreData = false;		//지금 서버단에서 page ==2 요청할때 500에러가나서 앱이 죽는 버그가 있음. 수정하기 전까지 false로
 					} else if (result.result == null) {
+						mAdapter.clear();
 						initDummyData(emotion);
+						isMoreData = false;
+						Log.e(TAG, "onSuccess: result.result == null"  );
 					}
-					
 				} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
-//					Toast.makeText(getActivity(), "/mylist result.success:0\nwork:"+result.work, Toast.LENGTH_SHORT).show();
-				} else {
-//					Toast.makeText(getActivity(), "/mylist Unexpected error.."+result.work, Toast.LENGTH_SHORT).show();
+					Log.e(TAG, "onSuccess: result.result == 0"  );
 				}
 			}
 
@@ -1004,8 +1053,8 @@ public class MyListFragment extends PagerFragment{
 	
 	private GoodInfo goodInfo;
 	private GoodCancelInfo goodCancelInfo;
-	public void setLikeDisplay(MyList2Result item) {
-		final MyList2Result tempItem = item;
+	public void setLikeDisplay(CommonResult item) {
+		final CommonResult tempItem = item;
 		
 		if (tempItem.myGood == 0 ) {
 			NetworkManager.getInstance().putSdamGood(getActivity(), 
@@ -1019,6 +1068,7 @@ public class MyListFragment extends PagerFragment{
 							goodInfo = result;
 							if (goodInfo.success == CommonInfo.COMMON_INFO_SUCCESS) {
 								mAdapter.setLikeNum(tempItem); //마이 굿 반대로, 카운트 증가/증감
+								postEvent(tempItem, EventInfo.MODE_UPDATE);
 							} else {
 //								Toast.makeText(getActivity(), "/good onSuccess:0", Toast.LENGTH_SHORT).show();
 							}
@@ -1039,6 +1089,7 @@ public class MyListFragment extends PagerFragment{
 							goodCancelInfo = result;
 							if (result.success == CommonInfo.COMMON_INFO_SUCCESS) {
 								mAdapter.setLikeNum(tempItem);
+								postEvent(tempItem, EventInfo.MODE_UPDATE);
 							} else {
 //								Toast.makeText( getActivity(), "/goodcancel onSuccess:0" , Toast.LENGTH_SHORT).show();
 							}
@@ -1052,6 +1103,18 @@ public class MyListFragment extends PagerFragment{
 		}
 
 	}// setlikedisplay
-	
+	@Subscribe
+	public void onEvent(EventInfo eventInfo){
+		Log.e(TAG, "onEvent: "+eventInfo.mode );
+		if(mAdapter == null || mAdapter.getItemCount() < 1) {
+			return;
+		}
+		mAdapter.findOneAndModify(eventInfo.commonResult, eventInfo.mode);
+	}
+
+	private void postEvent(CommonResult commonResult, String mode){
+		EventInfo eventInfo = new EventInfo(commonResult, mode);
+		EventBus.getInstance().post(eventInfo);
+	}
 	
 }

@@ -10,32 +10,30 @@ import kr.me.sdam.PagerFragment;
 import kr.me.sdam.PropertyManager;
 import kr.me.sdam.R;
 import kr.me.sdam.common.CommonInfo;
-import kr.me.sdam.common.CommonResultItem;
+import kr.me.sdam.common.CommonResult;
+import kr.me.sdam.common.CommonResultAdapter;
+import kr.me.sdam.common.PreLoadLayoutManager;
+import kr.me.sdam.common.event.EventBus;
+import kr.me.sdam.common.event.EventInfo;
 import kr.me.sdam.detail.DetailActivity;
 import kr.me.sdam.dialogs.DeleteDialogFragment;
 import kr.me.sdam.dialogs.ReportMenuDialogFragment;
-import kr.me.sdam.dialogs.WaitingDialogFragment;
 import kr.me.sdam.good.GoodCancelInfo;
 import kr.me.sdam.good.GoodInfo;
-import kr.me.sdam.tabtwo.TabTwoAdapter.OnAdapterItemClickListener;
 import okhttp3.Request;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.os.Looper;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -43,6 +41,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.squareup.otto.Subscribe;
 
 public class TabTwoFragment extends PagerFragment {
 	@Override
@@ -53,89 +52,113 @@ public class TabTwoFragment extends PagerFragment {
 		t.setScreenName("TabTwoFragment");
 		t.send(new HitBuilders.AppViewBuilder().build());
 	}
-	@Override
-	public void onStart() {
-		super.onStart();
-		GoogleAnalytics.getInstance(getActivity()).reportActivityStart (getActivity());
-	}
-	@Override
-	public void onStop() {
-		super.onStop();
-		GoogleAnalytics.getInstance(getActivity()).reportActivityStop (getActivity());
-	}
 
 	private static final String TAG = TabTwoFragment.class.getSimpleName();
-	Handler mHandler = new Handler();
-	long startTime;
-	
-	ListView listView;
-	TabTwoAdapter mAdapter;
+	public static final int RC_DETAIL = 102;
 	GoodInfo goodInfo;
 	GoodCancelInfo goodCancelInfo;
-	int userId=0;
-	
-	private int lastPosition;
-	private int requestPage = 1;
+
+	public int lastPosition=0;
+
+	RecyclerView recyclerView;
+	//	CommonResultAdapter mAdapter;
+	TabTwoAdapter mAdapter;
+	//	LinearLayoutManager layoutManager;
+	PreLoadLayoutManager layoutManager;
+	SwipeRefreshLayout refreshLayout;
+	boolean isLast = false;
+	Handler mHandler = new Handler(Looper.getMainLooper());
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		View view = inflater.inflate(R.layout.fragment_tab_two, container, false);
-		listView = (ListView) view.findViewById(R.id.list_tabtwo);
-		mAdapter = new TabTwoAdapter(getActivity());
-		listView.setAdapter(mAdapter);
-		mAdapter.setOnAdapterItemClickListener(new OnAdapterItemClickListener() {
-
+		refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
+		refreshLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN);
+		refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
 			@Override
-			public void onAdapterItemClick(TabTwoAdapter adapter, View view,
-					TabTwoResult item, int type) {
+			public void onRefresh() {
+				mHandler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						start = 1;
+						initData();
+					}
+				}, 1000);
+			}
+		});
+		recyclerView = (RecyclerView)view.findViewById(R.id.recycler);
+		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+				super.onScrollStateChanged(recyclerView, newState);
+				if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
+					getMoreItem();
+				}
+			}
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+				super.onScrolled(recyclerView, dx, dy);
+				int totalItemCount = mAdapter.getItemCount();
+				int lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+				if (totalItemCount > 0 && lastVisibleItemPosition != RecyclerView.NO_POSITION && (totalItemCount - 1 <= lastVisibleItemPosition)) {
+					isLast = true;
+				} else {
+					isLast = false;
+				}
+				if (dy > 0) { // Scroll Down
+					((MainActivity) getActivity()).setMenuInvisible();
+				} else if (dy < 0) { // Scroll Up
+					((MainActivity) getActivity()).setMenuVisible();
+				}
+
+
+			}
+		});
+//		mAdapter = new CommonResultAdapter();
+		mAdapter = new TabTwoAdapter();
+		mAdapter.setOnItemClickListener(new kr.me.sdam.common.OnItemClickListener() {
+			@Override
+			public void onItemClick(View view, int position) {
+				Log.e(TAG, "onItemClick: " );
+				CommonResult item = mAdapter.getItem(position);
+				Intent intent = new Intent(getActivity(), DetailActivity.class);
+				intent.putExtra(CommonResult.REQUEST_NUMBER, ""+item.num);
+				getActivity().startActivityForResult(intent, RC_DETAIL);
+			}
+		});
+		mAdapter.setOnAdapterItemClickListener(new CommonResultAdapter.OnAdapterItemClickListener() {
+			@Override
+			public void onAdapterItemClick(CommonResultAdapter adapter, View view, int position, CommonResult item, int type) {
 				switch (type) {
-				case CommonResultItem.TYPE_INVALID:
-					Toast.makeText(getActivity(), "INVALID TYPE", Toast.LENGTH_SHORT).show();
-					break;
-				case CommonResultItem.TYPE_DISTANCE:
-					break;
-				case CommonResultItem.TYPE_REPORT:
-					Bundle b = new Bundle();
-					b.putSerializable("reporteditem", item);
-					b.putSerializable("reportedadapter", adapter);
-					b.putInt("curruenttab", 2);
-					ReportMenuDialogFragment f = new ReportMenuDialogFragment();
-					f.setArguments(b);
-					f.show(getFragmentManager(), "dialog");
-					break;
-				case CommonResultItem.TYPE_REPLY:
-					break;
-				case CommonResultItem.TYPE_LIKE:
-					setLikeDisplay(item);
-					break;
+					case CommonResult.TYPE_INVALID:
+						Log.e(TAG, "onAdapterItemClick: INVALID TYPE" );
+						break;
+					case CommonResult.TYPE_DISTANCE:
+						break;
+					case CommonResult.TYPE_REPORT:
+						Log.e(TAG, "onAdapterItemClick: report click");
+						Bundle b = new Bundle();
+						b.putSerializable("reporteditem", item);
+						b.putSerializable("reportedadapter", mAdapter);
+						b.putInt("curruenttab", 2);
+						ReportMenuDialogFragment f = new ReportMenuDialogFragment();
+						f.setArguments(b);
+						f.show(getFragmentManager(), "dialog");
+						break;
+					case CommonResult.TYPE_REPLY:
+						break;
+					case CommonResult.TYPE_LIKE:
+						setLikeDisplay(item);
+						break;
 				}
 			}
 		});
-		listView.setOnItemClickListener(new OnItemClickListener() {
-
+		mAdapter.setOnItemLongClickListener(new kr.me.sdam.common.OnItemLongClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				Object data = listView.getItemAtPosition(position);
-				TabTwoResult item = (TabTwoResult) data;
-				Intent intent = new Intent(getActivity(), DetailActivity.class);
-				intent.putExtra(CommonResultItem.REQUEST_NUMBER, ""+item.num);
-				// Bundle b = new Bundle();
-				// b.putString("backgroundId", ""+item.backgroundId);
-				// b.putString("content", ""+item.content);
-//				intent.putExtra(TAB_TWO_ITEM, item);
-				// // intent.putExtras(new Bundle());
-//				startActivityForResult(intent, 0);
-				startActivity(intent);
-			}
-		});
-		listView.setOnItemLongClickListener(new OnItemLongClickListener() {
-
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				TabTwoResult longClickedItem = (TabTwoResult)listView.getItemAtPosition(position);
-				if(longClickedItem.writer.equals(PropertyManager.getInstance().getUserId())){
+			public void onItemLongClick(View view, int position) {
+				CommonResult longClickedItem = mAdapter.getItem(position);
+				Log.e(TAG, "onItemLongClick: " + longClickedItem);
+				if(longClickedItem.writer.equals( PropertyManager.getInstance().getUserId() )){
 					Bundle b = new Bundle();
 					b.putSerializable("deletedItem", longClickedItem);
 					b.putSerializable("deletedadapter", mAdapter);
@@ -143,47 +166,26 @@ public class TabTwoFragment extends PagerFragment {
 					b.putInt("activityType", 2); // 0==댓글, 1,2,3==탭게시물
 					DeleteDialogFragment f = new DeleteDialogFragment();
 					f.setArguments(b);
-					f.show(getActivity().getSupportFragmentManager(), "deletereplydialog");	
+					f.show(getActivity().getSupportFragmentManager(), "deletereplydialog");
 				}
-				return true;
 			}
 		});
-		listView.setOnScrollListener(new OnScrollListener(){
-			@Override
-			public void onScroll(AbsListView view, int firstVisibleItem,
-					int visibleItemCount, int totalItemCount) {
-				int currentPosition = view.getFirstVisiblePosition();
-				if( currentPosition > lastPosition){
-					((MainActivity) getActivity()).setMenuInvisibility();
-				}
-				if(currentPosition < lastPosition){
-					((MainActivity) getActivity()).setMenuVisibility();
-				}
-				lastPosition=currentPosition;
-			}
-			@Override
-			public void onScrollStateChanged(AbsListView view, int scrollState) {
-			}
-			
-		});
-	
-//		initData();
+		recyclerView.setAdapter(mAdapter);
+//		layoutManager = new LinearLayoutManager(getActivity());
+		layoutManager = new PreLoadLayoutManager(getActivity());
+//        layoutManager.scrollToPosition(5);
+//        layoutManager.smoothScrollToPosition(recyclerView, null, 5);
+		recyclerView.setLayoutManager(layoutManager);
+//        recyclerView.addItemDecoration(new BoardDecoration(getActivity()));
+
+
+
+		initData();
 		return view;
 	}
 	private void initData() {
-		List<TabTwoResult> items = TabTwoDataManager.getInstance()
-				.getTabTwoResultList();
-		for (TabTwoResult id : items) {
-			mAdapter.add(id);
-		}
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-//		requestPage=1;
-		NetworkManager.getInstance().getSdamIssue(getActivity(), 
-				String.valueOf(requestPage),
+		NetworkManager.getInstance().getSdamIssue(getActivity(),
+				"" + start,
 				new OnResultListener<TabTwoInfo>() {
 
 					@Override
@@ -192,34 +194,76 @@ public class TabTwoFragment extends PagerFragment {
 						if(result.success==CommonInfo.COMMON_INFO_SUCCESS){
 							if(result.result != null){
 								mAdapter.clear();
-								mAdapter.setTotalCount(1000);
-		//**********Clear()할지 말지******
-								for (TabTwoResult r : result.result) {
-									mAdapter.add(r);
-//									NewTabTwoDataManager.getInstance() .addToTabTwoDataManagerList(r);
-								}
-								if(lastPosition != 0){
-									listView.setSelection(lastPosition);	
-								}
-//								requestPage++;
+								mAdapter.setTotalCount(Integer.MAX_VALUE - DISPLAY_NUM);	// sdam 서버는 total 변수 안씀, DisplayNum을 빼서 오버플로 방지
+								mAdapter.addAll(result.result);
+								start++;
+								isMoreData = true;	// getMoreItem function variable
 							} else if(result.result == null){
-//								Toast.makeText(getActivity(), "서버에 연결할 수 없습니다.", Toast.LENGTH_SHORT).show();
 								Log.e(TAG, "onSuccess: result.result == null");
 							}
 						} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
-							Log.e(TAG, "onSuccess: result.success == 0");
-							Toast.makeText(getActivity(), "서버에 연결할 수 없습니다. " + result.work , Toast.LENGTH_SHORT).show();
-						} else {
-							Toast.makeText(getActivity(),
-									"issue/# : Unexpected Network Error..", Toast.LENGTH_SHORT).show();
+							Log.e(TAG, "onSuccess: result.success == 0 " + result.work);
 						}
+						refreshLayout.setRefreshing(false);
+						dialog.dismiss();
 					}
 
 					@Override
 					public void onFailure(Request request, int code, Throwable cause) {
 						Toast.makeText(getActivity(), TAG+ "서버에 연결할 수 없습니다. #"+code, Toast.LENGTH_SHORT).show();
+						refreshLayout.setRefreshing(false);
+						dialog.dismiss();
 					}
 				});
+		dialog = new ProgressDialog(getActivity());
+		dialog.setTitle("타이틀");
+		dialog.setMessage("데이터 로딩중..");
+		dialog.show();
+	}
+
+	boolean isMoreData = true;
+	ProgressDialog dialog = null;
+	private static final int DISPLAY_NUM = 10;
+	private int start=1;
+	private String reqDate = null;
+
+	private void getMoreItem(){
+		Log.e(TAG, "getMoreItem: page: " +start);
+		if (isMoreData == false) {
+			Log.e(TAG, "getMoreItem: has no more items" );
+			return;
+		}
+		if (mAdapter.getTotalCount() > 0 && mAdapter.getTotalCount() + DISPLAY_NUM > mAdapter.getItemCount() ) {
+			NetworkManager.getInstance().getSdamIssue(getActivity(), "" + start,
+					new OnResultListener<TabTwoInfo>() {
+						@Override
+						public void onSuccess(Request request, TabTwoInfo result) {
+							if(result.success==CommonInfo.COMMON_INFO_SUCCESS){
+								if(result.result != null){
+									mAdapter.addAll(result.result);
+									start++;
+								} else { // success == 1 && result == null
+									Log.e(TAG, "onSuccess: result.result == null " + result.work );
+									isMoreData = false;	// Never call this function
+								}
+							} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
+								Log.e(TAG, "onSuccess: result.success == 0 " + result.work);
+							}
+							refreshLayout.setRefreshing(false);
+						}
+
+						@Override
+						public void onFailure(Request request, int code, Throwable cause) {
+							Toast.makeText(getActivity(), TAG+ "서버에 연결할 수 없습니다. #"+code, Toast.LENGTH_SHORT).show();
+							refreshLayout.setRefreshing(false);
+						}
+					});
+		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
 	}
 
 	@Override
@@ -239,8 +283,8 @@ public class TabTwoFragment extends PagerFragment {
 
 	}// setUser~
 	
-	public void setLikeDisplay(TabTwoResult item){
-		final TabTwoResult tempItem = item;
+	public void setLikeDisplay(CommonResult item){
+		final CommonResult tempItem = item;
 		if (tempItem.myGood == 0 ) {
 			NetworkManager.getInstance().putSdamGood(getActivity(), 
 					String.valueOf(item.num),
@@ -253,6 +297,7 @@ public class TabTwoFragment extends PagerFragment {
 							goodInfo = result;
 							if (goodInfo.success == CommonInfo.COMMON_INFO_SUCCESS) {
 								mAdapter.setLikeNum(tempItem); //마이 굿 반대로, 카운트 증가/증감
+								postEvent(tempItem, EventInfo.MODE_UPDATE);
 							} else {
 //								Toast.makeText(getActivity(), "/good onSuccess:0", Toast.LENGTH_SHORT).show();
 							}
@@ -273,6 +318,7 @@ public class TabTwoFragment extends PagerFragment {
 							goodCancelInfo = result;
 							if (result.success == CommonInfo.COMMON_INFO_SUCCESS) {
 								mAdapter.setLikeNum(tempItem);
+								postEvent(tempItem, EventInfo.MODE_UPDATE);
 							} else {
 //								Toast.makeText( getActivity(), "/goodcancel onSuccess:0" , Toast.LENGTH_SHORT).show();
 							}
@@ -287,5 +333,17 @@ public class TabTwoFragment extends PagerFragment {
 
 	}//setLikeDisplay
 
+	@Subscribe
+	public void onEvent(EventInfo eventInfo){
+		Log.e(TAG, "onEvent: "+eventInfo.mode );
+		if(mAdapter == null || mAdapter.getItemCount() < 1) {
+			return;
+		}
+		mAdapter.findOneAndModify(eventInfo.commonResult, eventInfo.mode);
+	}
 
+	private void postEvent(CommonResult commonResult, String mode){
+		EventInfo eventInfo = new EventInfo(commonResult, mode);
+		EventBus.getInstance().post(eventInfo);
+	}
 }
