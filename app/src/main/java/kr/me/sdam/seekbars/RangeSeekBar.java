@@ -59,7 +59,8 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	public final int LEFT_COLOR;
 	public final int MIDDLE_COLOR;
 	public final int RIGHT_COLOR;
-	public static final int BACKGROUND_COLOR = Color.GRAY;
+	public static final int BACKGROUND_COLOR = Color.LTGRAY;
+//	public static final int BACKGROUND_COLOR = R.color.viewpager_circle_color;
 	private OnRangeSeekBarChangeListener<T> listener;
 
 	/**

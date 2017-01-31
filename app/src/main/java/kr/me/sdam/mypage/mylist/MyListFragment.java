@@ -37,6 +37,7 @@ import java.util.List;
 import kr.me.sdam.BgImage;
 import kr.me.sdam.MainActivity;
 import kr.me.sdam.MyApplication;
+import kr.me.sdam.MyConfig;
 import kr.me.sdam.NetworkManager;
 import kr.me.sdam.NetworkManager.OnResultListener;
 import kr.me.sdam.PropertyManager;
@@ -481,7 +482,7 @@ public class MyListFragment extends PagerFragment{
 
 	boolean isMoreData = true;
 	ProgressDialog dialog = null;
-	private static final int DISPLAY_NUM = 10;
+	private static final int DISPLAY_NUM = MyConfig.DISPLAY_NUM;
 	private int start=1;
 	private String reqDate = null;
 

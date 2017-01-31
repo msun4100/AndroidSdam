@@ -196,15 +196,19 @@ public class TabTwoItemView extends FrameLayout {
 		}
 
 		if (item.timeStamp != null) {
-			String timeStr = "time";
-			if (item.timeStamp.time.equals("hours")) {
+			String timeStr="time";
+			if(item.timeStamp.time.equals("hours")){
 				timeStr = "시간 전";
-			} else if (item.timeStamp.time.equals("dates")) {
+			} else if(item.timeStamp.time.equals("dates")){
 				timeStr = "일 전";
-			} else if (item.timeStamp.time.equals("minutes")) {
+			} else if(item.timeStamp.time.equals("minutes")){
 				timeStr = "분 전";
-			} else if (item.timeStamp.time.equals("second")) {
+			} else if(item.timeStamp.time.equals("second")){
 				timeStr = "초 전";
+			} else if (item.timeStamp.time.equals("months")) {
+				timeStr = "달 전";
+			} else if (item.timeStamp.time.equals("years")){
+				timeStr = "년 전";
 			}
 			timeView.setText(item.timeStamp.value + timeStr);
 		}

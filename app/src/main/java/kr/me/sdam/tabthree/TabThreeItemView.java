@@ -6,6 +6,7 @@ import kr.me.sdam.common.CommonResult;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class TabThreeItemView extends FrameLayout {
+	public static final String TAG = TabThreeItemView.class.getSimpleName();
 	public TabThreeItemView(Context context) {
 		super(context);
 		init();
@@ -189,6 +191,10 @@ public class TabThreeItemView extends FrameLayout {
 				timeStr = "분 전";
 			} else if(item.timeStamp.time.equals("second")){
 				timeStr = "초 전";
+			} else if (item.timeStamp.time.equals("months")) {
+				timeStr = "달 전";
+			} else if (item.timeStamp.time.equals("years")){
+				timeStr = "년 전";
 			}
 			timeView.setText(item.timeStamp.value + timeStr);
 		}

@@ -1,29 +1,5 @@
 package kr.me.sdam.detail;
 
-import java.util.ArrayList;
-
-import kr.me.sdam.BgImage;
-import kr.me.sdam.MyApplication;
-import kr.me.sdam.NetworkManager;
-import kr.me.sdam.NetworkManager.OnResultListener;
-import kr.me.sdam.PropertyManager;
-import kr.me.sdam.R;
-import kr.me.sdam.common.CommonInfo;
-import kr.me.sdam.common.CommonResult;
-import kr.me.sdam.detail.MyDetailReplyAdapter.OnAdapterItemClickListener;
-import kr.me.sdam.detail.autocomplete.MyAdapter;
-import kr.me.sdam.detail.autocomplete.Person;
-import kr.me.sdam.detail.good.CancelGReplyInfo;
-import kr.me.sdam.detail.good.GoodReplyInfo;
-import kr.me.sdam.detail.reply.ReplyInfo;
-import kr.me.sdam.detail.viewpager.CircleAnimIndicator;
-import kr.me.sdam.detail.viewpager.MyViewPagerAdapter;
-import kr.me.sdam.dialogs.DeleteDialogFragment;
-import kr.me.sdam.dialogs.ReportMenuDialogFragment;
-import kr.me.sdam.good.GoodCancelInfo;
-import kr.me.sdam.good.GoodInfo;
-import okhttp3.Request;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -58,6 +34,30 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
+import java.util.ArrayList;
+
+import kr.me.sdam.BgImage;
+import kr.me.sdam.MyApplication;
+import kr.me.sdam.NetworkManager;
+import kr.me.sdam.NetworkManager.OnResultListener;
+import kr.me.sdam.PropertyManager;
+import kr.me.sdam.R;
+import kr.me.sdam.common.CommonInfo;
+import kr.me.sdam.common.CommonResult;
+import kr.me.sdam.detail.MyDetailReplyAdapter.OnAdapterItemClickListener;
+import kr.me.sdam.detail.autocomplete.MyAdapter;
+import kr.me.sdam.detail.autocomplete.Person;
+import kr.me.sdam.detail.good.CancelGReplyInfo;
+import kr.me.sdam.detail.good.GoodReplyInfo;
+import kr.me.sdam.detail.reply.ReplyInfo;
+import kr.me.sdam.detail.viewpager.CircleAnimIndicator;
+import kr.me.sdam.detail.viewpager.MyViewPagerAdapter;
+import kr.me.sdam.dialogs.DeleteDialogFragment;
+import kr.me.sdam.dialogs.ReportMenuDialogFragment;
+import kr.me.sdam.good.GoodCancelInfo;
+import kr.me.sdam.good.GoodInfo;
+import okhttp3.Request;
+
 public class DetailActivity extends ActionBarActivity  {
 	private static final String TAG = DetailActivity.class.getSimpleName();
 	public final static int DETAIL_CONTENT_LENGTH = 110;
@@ -72,8 +72,6 @@ public class DetailActivity extends ActionBarActivity  {
 	ListView listView;
 	MyDetailReplyAdapter mDetailAdapter;
 	MyViewPagerAdapter mViewPagerAdapter;
-	TextView vpDescView;
-	TextView vpPageView;
 
 	String content = "default contents";
 	// =======List Header=====
@@ -293,10 +291,7 @@ public class DetailActivity extends ActionBarActivity  {
 		
 		//========네트워크 중 캔슬러블 false주기
 		final ProgressDialog dialog = new ProgressDialog(this);
-		dialog.setIcon(R.drawable.a_launcher_1_icon_512x512);
-		dialog.setTitle("Loading...");
 		dialog.setMessage("상세담을 불러오는 중입니다...");
-		dialog.setCancelable(false);
 		dialog.show();
 		//init detailactivity header view
 		NetworkManager.getInstance().getSdamRead(this, responseNum,
@@ -339,9 +334,9 @@ public class DetailActivity extends ActionBarActivity  {
 							setHeaderString();
 							setHeaderPager();
 						} else if(result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO){
-//							Toast.makeText(DetailActivity.this, "Success:zero", Toast.LENGTH_SHORT).show();
+							Log.e(TAG, "onSuccess: result.success: 0" );
 						} else {
-//							Toast.makeText(DetailActivity.this, "Unexpected error..", Toast.LENGTH_SHORT).show();
+							Log.e(TAG, "onSuccess: Unexpected error.." );
 						}
 						dialog.dismiss();
 					}
@@ -350,7 +345,6 @@ public class DetailActivity extends ActionBarActivity  {
 					public void onFailure(Request request, int code, Throwable cause) {
 						Toast.makeText(DetailActivity.this, "서버요청에 실패하였습니다. #", Toast.LENGTH_SHORT).show();
 						Log.e(TAG, "onFailure: "+cause );
-						dialog.setCancelable(true);
 						dialog.dismiss();
 					}
 				});
@@ -448,7 +442,7 @@ public class DetailActivity extends ActionBarActivity  {
 				isFirst = true;
 				editRepMessage = editReply.getText().toString();
 				if (selectButton == DETAIL_BUTTON_COMPLETE) {
-					if ((editRepMessage != null && !editRepMessage.equals(""))) {
+					if ((!editRepMessage.equals(""))) {
 						// 댓글 서버에 씀
 						dialog.setMessage("댓글을 쓰는 중입니다...");
 						dialog.setCancelable(false);				
@@ -532,7 +526,7 @@ public class DetailActivity extends ActionBarActivity  {
 										} else if (result.success == CommonInfo.COMMON_INFO_SUCCESS_ZERO) {
 											Toast.makeText(DetailActivity.this, "댓글 등록에 실패하였습니다."+result.work, Toast.LENGTH_SHORT).show();
 										} else {
-//											Toast.makeText( DetailActivity.this, "/Reply Unexpected error..", Toast.LENGTH_SHORT).show();
+											Log.e(TAG, "onSuccess: /Reply Unexpected error.." );
 										}
 										dialog.setCancelable(true);
 										dialog.dismiss();

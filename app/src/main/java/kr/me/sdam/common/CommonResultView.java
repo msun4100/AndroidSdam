@@ -143,7 +143,21 @@ public class CommonResultView extends FrameLayout{
 			distanceView.setText("" + item.locate + "km");// int	
 		}
 		if(item.timeStamp != null){
-			timeView.setText(item.timeStamp.value + item.timeStamp.time);
+			String timeStr="time";
+			if(item.timeStamp.time.equals("hours")){
+				timeStr = "시간 전";
+			} else if(item.timeStamp.time.equals("dates")){
+				timeStr = "일 전";
+			} else if(item.timeStamp.time.equals("minutes")){
+				timeStr = "분 전";
+			} else if(item.timeStamp.time.equals("second")){
+				timeStr = "초 전";
+			} else if (item.timeStamp.time.equals("months")) {
+				timeStr = "달 전";
+			} else if (item.timeStamp.time.equals("years")){
+				timeStr = "년 전";
+			}
+			timeView.setText(item.timeStamp.value + timeStr);
 		}
 		
 		contentView.setText(item.content);

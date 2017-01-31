@@ -115,6 +115,10 @@ public class ItemViewHolder extends RecyclerView.ViewHolder{
                 timeStr = "분 전";
             } else if(item.timeStamp.time.equals("second")){
                 timeStr = "초 전";
+            } else if (item.timeStamp.time.equals("months")) {
+                timeStr = "달 전";
+            } else if (item.timeStamp.time.equals("years")){
+                timeStr = "년 전";
             }
             timeView.setText(item.timeStamp.value + timeStr);
         }

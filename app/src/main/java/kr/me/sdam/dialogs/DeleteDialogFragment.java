@@ -56,7 +56,7 @@ public class DeleteDialogFragment extends DialogFragment {
 	CommonResult mSearchItem;
 	
 	MyListAdapter myListAdapter;
-	MyList2Result myListItem;
+	CommonResult myListItem;
 	
 	FavorAdapter favorAdapter;
 	CommonResult favorItem;
@@ -99,11 +99,11 @@ public class DeleteDialogFragment extends DialogFragment {
 				responseNum=b.getInt("responseNum");
 			} else if(type == 5){
 				myListAdapter = (MyListAdapter)b.getSerializable("deletedadapter");
-				myListItem = (MyList2Result)b.getSerializable("deletedItem");
+				myListItem = (CommonResult)b.getSerializable("deletedItem");
 				responseNum=b.getInt("responseNum");
 			} else if(type == 6){
 				favorAdapter = (FavorAdapter)b.getSerializable("deletedadapter");
-				favorItem = (Favor2Result)b.getSerializable("deletedItem");
+				favorItem = (CommonResult)b.getSerializable("deletedItem");
 				responseNum=b.getInt("responseNum");
 			}			
 		}

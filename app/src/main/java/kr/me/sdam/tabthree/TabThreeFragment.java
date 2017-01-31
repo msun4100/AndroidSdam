@@ -2,6 +2,7 @@ package kr.me.sdam.tabthree;
 
 import kr.me.sdam.MainActivity;
 import kr.me.sdam.MyApplication;
+import kr.me.sdam.MyConfig;
 import kr.me.sdam.NetworkManager;
 import kr.me.sdam.NetworkManager.OnResultListener;
 import kr.me.sdam.PagerFragment;
@@ -204,6 +205,9 @@ public class TabThreeFragment extends PagerFragment {
 							if (result.result != null) {
 								mAdapter.clear();
 								mAdapter.setTotalCount(Integer.MAX_VALUE - DISPLAY_NUM);	// sdam 서버는 total 변수 안씀, DisplayNum을 빼서 오버플로 방지
+//								for(CommonResult cr : result.result){
+//									Log.e(TAG, "onSuccess: "+cr.content + " / "+ cr.timeStamp.value + " " + cr.timeStamp.time );
+//								}
 								mAdapter.addAll(result.result);
 								start++;
 								isMoreData = true;	// getMoreItem function variable
@@ -225,14 +229,13 @@ public class TabThreeFragment extends PagerFragment {
 					}
 				});
 		dialog = new ProgressDialog(getActivity());
-		dialog.setTitle("타이틀");
 		dialog.setMessage("데이터 로딩중..");
 		dialog.show();
 	}	//init
 
 	boolean isMoreData = true;
 	ProgressDialog dialog = null;
-	private static final int DISPLAY_NUM = 10;
+	private static final int DISPLAY_NUM = MyConfig.DISPLAY_NUM;
 	private int start=1;
 	private String reqDate = null;
 

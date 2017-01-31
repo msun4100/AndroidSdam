@@ -187,7 +187,7 @@ public class WriteTwoFragment extends Fragment {
 				final ProgressDialog dialog = new ProgressDialog(getActivity());
 				dialog.setMessage("글쓰기 중입니다...");
 //	            dialog.setIcon(R.drawable.ic_launcher);
-	            dialog.setCancelable(false);
+//	            dialog.setCancelable(false);
 //	            dialog.setTitle("progress...");
 	            dialog.show();
 

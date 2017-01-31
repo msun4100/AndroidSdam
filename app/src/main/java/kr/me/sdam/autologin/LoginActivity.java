@@ -14,6 +14,7 @@ import okhttp3.Request;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -183,15 +184,20 @@ public class LoginActivity extends Activity {
 						} else {
 							Toast.makeText(LoginActivity.this, "로그인에 실패하였습니다.", Toast.LENGTH_SHORT).show();
 						}
-						
+						dialog.dismiss();
 					}
 					
 					@Override
 					public void onFailure(Request request, int code, Throwable cause) {
 						Toast.makeText(LoginActivity.this, "등록되지 않은 유저입니다.\n아이디&패스워드를 확인하세요.", Toast.LENGTH_SHORT).show();
+						dialog.dismiss();
 					}
 				});
+		dialog = new ProgressDialog(LoginActivity.this);
+		dialog.setMessage("로그인 요청중..");
+		dialog.show();
 	}
+	ProgressDialog dialog = null;
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

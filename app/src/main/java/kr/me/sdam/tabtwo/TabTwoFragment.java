@@ -4,6 +4,7 @@ import java.util.List;
 
 import kr.me.sdam.MainActivity;
 import kr.me.sdam.MyApplication;
+import kr.me.sdam.MyConfig;
 import kr.me.sdam.NetworkManager;
 import kr.me.sdam.NetworkManager.OnResultListener;
 import kr.me.sdam.PagerFragment;
@@ -216,14 +217,13 @@ public class TabTwoFragment extends PagerFragment {
 					}
 				});
 		dialog = new ProgressDialog(getActivity());
-		dialog.setTitle("타이틀");
 		dialog.setMessage("데이터 로딩중..");
 		dialog.show();
 	}
 
 	boolean isMoreData = true;
 	ProgressDialog dialog = null;
-	private static final int DISPLAY_NUM = 10;
+	private static final int DISPLAY_NUM = MyConfig.DISPLAY_NUM;
 	private int start=1;
 	private String reqDate = null;
 
